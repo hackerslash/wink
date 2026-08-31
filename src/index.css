@@ -1,0 +1,301 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: custom
+ * paper oklch(97.6% 0.004 75) · accent oklch(55% 0.17 30) vermilion
+ * display Figtree 600 (-0.024em) · body Figtree 400 · outlier SF Mono
+ * axes: light paper · geometric-sans display · warm accent
+ * pre-emit critique: P5 H4 E4 S4 R5 V4
+ */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/figtree";
+@import "./tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: "Figtree Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --color-rule: var(--rule);
+
+    /* Shape: 10 px controls, 14 px cards. Pills come from `rounded-full`, so
+     * the top of the scale stays a radius — shadcn primitives use `rounded-4xl`
+     * for their own chrome and must not turn into circles. */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-xl: 14px;
+    --radius-2xl: 16px;
+    --radius-3xl: 18px;
+    --radius-4xl: 20px;
+}
+
+/* ---------------------------------------------------------------- surfaces */
+
+@utility panel {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+}
+
+@utility panel-2 {
+  background: var(--paper-3);
+  border: 1px solid var(--rule);
+}
+
+@utility raised {
+  box-shadow:
+    0 1px 2px oklch(20% 0.01 60 / 0.06),
+    0 10px 28px -14px oklch(20% 0.01 60 / 0.14);
+}
+
+@utility accent-fill {
+  background: var(--accent-solid);
+  color: var(--accent-on);
+}
+
+@utility ink-fill {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+@utility rule-b {
+  border-bottom: 1px solid var(--rule);
+}
+
+@utility rule-r {
+  border-right: 1px solid var(--rule);
+}
+
+@utility rule-t {
+  border-top: 1px solid var(--rule);
+}
+
+/* ------------------------------------------------------------------ motion */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.1; }
+}
+@keyframes shimmer {
+  0% { background-position: -120% 0; }
+  100% { background-position: 220% 0; }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    font-size: 16px;
+    letter-spacing: -0.006em;
+  }
+  body {
+    overscroll-behavior: none;
+    background: var(--paper);
+    color: var(--foreground);
+    font-size: var(--text-body);
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.024em;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--accent-solid) 26%, transparent);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 16%, transparent) transparent;
+  }
+  *::-webkit-scrollbar { width: 11px; height: 11px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 15%, transparent);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 99px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--foreground) 28%, transparent);
+    background-clip: content-box;
+  }
+  kbd {
+    @apply rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent-solid);
+    outline-offset: 2px;
+  }
+}
+
+/* Effects budget: the visual layer is solid, so this only governs animation. */
+[data-effects="off"] *,
+[data-effects="reduced"] * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------- markdown */
+
+.prose-wink {
+  font-size: var(--text-read);
+  line-height: 1.68;
+}
+.prose-wink > * + * { margin-top: 0.9em; }
+.prose-wink h1, .prose-wink h2, .prose-wink h3, .prose-wink h4 {
+  @apply font-semibold;
+  margin-top: 1.5em;
+  margin-bottom: 0.45em;
+  line-height: 1.25;
+}
+.prose-wink h1 { font-size: 1.5em; }
+.prose-wink h2 { font-size: 1.28em; }
+.prose-wink h3 { font-size: 1.1em; }
+.prose-wink p { text-wrap: pretty; max-width: 68ch; }
+.prose-wink a {
+  color: var(--accent-solid);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in oklab, var(--accent-solid) 40%, transparent);
+}
+.prose-wink a:hover { text-decoration-color: var(--accent-solid); }
+.prose-wink ul { @apply list-disc space-y-1.5 pl-5; }
+.prose-wink ol { @apply list-decimal space-y-1.5 pl-5; }
+.prose-wink li::marker { color: var(--muted-foreground); }
+.prose-wink blockquote {
+  @apply my-4 py-1 pl-4 text-muted-foreground;
+  border-left: 2px solid var(--accent-solid);
+}
+.prose-wink code:not(pre code) {
+  @apply rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono;
+  font-size: 0.86em;
+}
+.prose-wink table {
+  @apply my-4 w-full border-collapse text-[14px];
+}
+.prose-wink th, .prose-wink td {
+  border: 1px solid var(--rule);
+  @apply px-3 py-2 text-left align-top;
+}
+.prose-wink th { background: var(--paper-3); @apply font-semibold; }
+.prose-wink hr { @apply my-6; border-color: var(--rule); }
+.prose-wink img { @apply my-3 max-w-full rounded-xl; border: 1px solid var(--rule); }
+.prose-wink .citation {
+  @apply mx-0.5 inline-flex h-[1.2em] min-w-[1.2em] items-center justify-center rounded-[5px] px-1 align-baseline font-mono font-semibold no-underline;
+  font-size: 0.72em;
+  background: color-mix(in oklab, var(--accent-solid) 14%, transparent);
+  color: var(--accent-solid);
+}
+.prose-wink .citation:hover { background: var(--accent-solid); color: var(--accent-on); }
+/* The caret rides the last line of streamed text, not the bottom of the block:
+ * it attaches to the deepest trailing element so it sits inline after the
+ * final character. Lists delegate to their last item; block-level trailers
+ * (code, tables, quotes) get it on their own line because there is no inline
+ * end to sit on. */
+.streaming-caret > :last-child::after,
+.streaming-caret > ul:last-child > li:last-child::after,
+.streaming-caret > ol:last-child > li:last-child::after,
+.streaming-caret > blockquote:last-child > :last-child::after {
+  content: "";
+  @apply ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[2px] align-baseline;
+  background: var(--accent-solid);
+  animation: caret 1s steps(2) infinite;
+}
+
+/* Containers that delegate must not also draw one. */
+.streaming-caret > ul:last-child::after,
+.streaming-caret > ol:last-child::after,
+.streaming-caret > blockquote:last-child::after {
+  content: none;
+}
+
+/* ------------------------------------------------------------- code blocks */
+
+.code-block {
+  @apply my-3 overflow-hidden rounded-xl;
+  background: var(--code-bg);
+  border: 1px solid var(--code-rule);
+}
+.code-block .code-head {
+  @apply flex h-9 items-center justify-between gap-2 px-3 font-mono text-[11px] tracking-wide;
+  color: var(--code-dim);
+  border-bottom: 1px solid var(--code-rule);
+}
+.code-block .code-head span:first-child { @apply uppercase; }
+.code-block pre {
+  @apply m-0 overflow-x-auto border-0 bg-transparent p-4 font-mono text-[13.5px] leading-[1.62];
+  color: var(--code-fg);
+}
+.code-block .code-actions { @apply flex items-center gap-1 opacity-0 transition-opacity; }
+.code-block:hover .code-actions, .code-block:focus-within .code-actions { @apply opacity-100; }
+.code-block .code-actions button {
+  @apply cursor-pointer rounded-md px-2 py-1 font-sans text-[12px] font-medium transition-colors;
+  color: var(--code-dim);
+}
+.code-block .code-actions button:hover {
+  background: oklch(100% 0 0 / 0.08);
+  color: var(--code-fg);
+}
+
+/* highlight.js — one theme, tuned for the code surface in both modes */
+.hljs-comment, .hljs-quote { color: var(--code-dim); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-type { color: var(--code-kw); }
+.hljs-string, .hljs-attr, .hljs-addition { color: var(--code-str); }
+.hljs-number, .hljs-symbol, .hljs-bullet { color: var(--code-num); }
+.hljs-title, .hljs-section, .hljs-name { color: var(--code-fn); }
+.hljs-built_in, .hljs-class .hljs-title { color: var(--code-fn); }
+.hljs-variable, .hljs-template-variable, .hljs-tag { color: var(--code-var); }
+.hljs-meta, .hljs-deletion { color: var(--code-del); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }

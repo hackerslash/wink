@@ -1,0 +1,102 @@
+/* Wink design tokens — see design.md. Every colour, size and easing the app
+ * uses is named here; components reference tokens, never raw values. */
+
+:root {
+  /* paper / ink ------------------------------------------------------- */
+  --paper: oklch(97.6% 0.004 75);
+  --paper-2: oklch(99.2% 0.003 75);
+  --paper-3: oklch(95.2% 0.005 75);
+  --rule: oklch(89% 0.006 75);
+  --ink: oklch(20% 0.008 60);
+  --ink-2: oklch(46% 0.008 65);
+
+  /* accent — a highlighter, never a fill for large areas --------------- */
+  --accent-solid: oklch(55% 0.17 30);
+  --accent-on: oklch(99% 0.002 75);
+  --accent-soft: color-mix(in oklab, var(--accent-solid) 12%, transparent);
+
+  /* shadcn contract --------------------------------------------------- */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper-2);
+  --card-foreground: var(--ink);
+  --popover: var(--paper-2);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper-2);
+  --secondary: var(--paper-3);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-3);
+  --muted-foreground: var(--ink-2);
+  --accent: var(--paper-3);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(52% 0.19 25);
+  --border: var(--rule);
+  --input: var(--rule);
+  --ring: var(--accent-solid);
+  --radius: 10px;
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper-2);
+  --sidebar-accent: var(--paper-3);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--accent-solid);
+
+  /* type scale — 1.25 ratio, anchored one step up from the old build --- */
+  --text-micro: 11.5px;
+  --text-label: 12.5px;
+  --text-ui: 14px;
+  --text-body: 15.5px;
+  --text-read: 16.5px;
+  --text-title: 19px;
+  --text-display: clamp(2.1rem, 4.2vw, 3.2rem);
+
+  /* space — 4 pt scale ------------------------------------------------- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+
+  /* motion ------------------------------------------------------------ */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-state: 120ms;
+  --dur-layer: 200ms;
+  --dur-panel: 320ms;
+
+  /* code surface ------------------------------------------------------ */
+  --code-bg: oklch(21% 0.012 70);
+  --code-rule: oklch(30% 0.012 70);
+  --code-fg: oklch(93% 0.006 80);
+  --code-dim: oklch(64% 0.01 75);
+  --code-kw: oklch(76% 0.13 320);
+  --code-str: oklch(80% 0.13 145);
+  --code-num: oklch(82% 0.12 65);
+  --code-fn: oklch(80% 0.11 235);
+  --code-var: oklch(78% 0.13 15);
+  --code-del: oklch(70% 0.17 25);
+}
+
+.dark {
+  --paper: oklch(15.5% 0.006 75);
+  --paper-2: oklch(19% 0.006 75);
+  --paper-3: oklch(23% 0.007 75);
+  --rule: oklch(28% 0.007 75);
+  --ink: oklch(95.5% 0.004 80);
+  --ink-2: oklch(70% 0.006 75);
+
+  --accent-solid: oklch(68% 0.15 32);
+  --accent-on: oklch(16% 0.01 60);
+
+  --destructive: oklch(68% 0.17 25);
+  --primary: var(--ink);
+  --primary-foreground: oklch(16% 0.01 60);
+  --sidebar-primary-foreground: oklch(16% 0.01 60);
+
+  --code-bg: oklch(12.5% 0.008 70);
+  --code-rule: oklch(24% 0.008 70);
+}
