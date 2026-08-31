@@ -84,6 +84,24 @@ export async function webSearch(
     }))
   }
 
+  if (kind === "firecrawl") {
+    const res = await fetch(endpoint || "https://api.firecrawl.dev/v1/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key ?? ""}` },
+      body: JSON.stringify({ query, limit: count }),
+      signal,
+    })
+    if (!res.ok) throw new Error(`Firecrawl ${res.status}: ${(await res.text()).slice(0, 200)}`)
+    const json = (await res.json()) as {
+      data?: { url: string; title?: string; description?: string; markdown?: string }[]
+    }
+    return (json.data ?? []).map((r) => ({
+      title: r.title ?? r.url,
+      url: r.url,
+      snippet: r.description ?? r.markdown?.slice(0, 400) ?? "",
+    }))
+  }
+
   if (kind === "searxng") {
     const url = new URL(`${(endpoint || "http://localhost:8888").replace(/\/$/, "")}/search`)
     url.searchParams.set("q", query)
@@ -127,8 +145,32 @@ export async function webSearch(
 }
 
 export async function fetchPage(url: string, settings: Settings, signal?: AbortSignal) {
-  const reader = settings.reader.endpoint || "https://r.jina.ai/"
   const key = settings.search.hasKey ? await vault.getSecret("search") : null
+
+  if (settings.reader.kind === "firecrawl") {
+    // Derive the scrape URL from the search endpoint so self-hosted Firecrawl
+    // works with one setting.
+    const base =
+      settings.search.kind === "firecrawl" && settings.search.endpoint
+        ? settings.search.endpoint.replace(/\/search\/?$/, "")
+        : "https://api.firecrawl.dev/v1"
+    const res = await fetch(`${base}/scrape`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key ?? ""}` },
+      body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: true }),
+      signal,
+    })
+    if (!res.ok) throw new Error(`Firecrawl scrape ${res.status}: ${(await res.text()).slice(0, 200)}`)
+    const json = (await res.json()) as {
+      data?: { markdown?: string; metadata?: { title?: string } }
+    }
+    const title = json.data?.metadata?.title
+    const body = json.data?.markdown ?? ""
+    if (!body) throw new Error("Firecrawl returned no content")
+    return `${title ? `Title: ${title}\nURL Source: ${url}\n\n` : ""}${body}`.slice(0, 60_000)
+  }
+
+  const reader = settings.reader.endpoint || "https://r.jina.ai/"
   const target = reader ? `${reader.replace(/\/$/, "")}/${url}` : url
   const res = await fetch(target, {
     headers: {

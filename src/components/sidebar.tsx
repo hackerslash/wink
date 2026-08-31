@@ -94,7 +94,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "z-30 flex h-full shrink-0 flex-col overflow-hidden bg-[var(--paper)] transition-[width] duration-300",
+        "z-30 flex h-full shrink-0 flex-col overflow-hidden bg-[var(--shell)] transition-[width] duration-300",
         open ? "w-[17.5rem]" : "w-0"
       )}
       style={{ transitionTimingFunction: "var(--ease-out)" }}
@@ -259,11 +259,7 @@ export function Sidebar() {
             onClick={() => store.getState().openSettings("privacy")}
             className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--paper-3)]"
           >
-            <HugeiconsIcon
-              icon={ShieldIcon}
-              className="size-3.5 shrink-0 text-muted-foreground"
-              strokeWidth={2}
-            />
+            <HugeiconsIcon icon={ShieldIcon} className="size-3.5 shrink-0 text-good" strokeWidth={2} />
             <span className="min-w-0 flex-1">
               <span className="block text-[12.5px] font-medium">Stored on this device</span>
               <span className="block truncate font-mono text-[11.5px] text-muted-foreground">

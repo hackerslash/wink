@@ -28,9 +28,9 @@ const ICONS: Record<string, typeof WrenchIcon> = {
 
 const STATUS: Record<ToolCall["status"], { label: string; className: string }> = {
   pending: { label: "queued", className: "text-muted-foreground" },
-  "awaiting-permission": { label: "needs permission", className: "text-[var(--accent-solid)]" },
-  running: { label: "running", className: "text-[var(--accent-solid)]" },
-  done: { label: "done", className: "text-muted-foreground" },
+  "awaiting-permission": { label: "needs permission", className: "text-warn" },
+  running: { label: "running", className: "text-info" },
+  done: { label: "done", className: "text-good" },
   error: { label: "failed", className: "text-destructive" },
   denied: { label: "denied", className: "text-muted-foreground" },
 }
@@ -56,7 +56,11 @@ export function ToolCard({ call, onRetry }: { call: ToolCall; onRetry?: () => vo
       >
         <HugeiconsIcon
           icon={icon}
-          className={cn("size-4 shrink-0", busy ? "animate-[pulse-soft_1.2s_infinite]" : "", "text-muted-foreground")}
+          className={cn(
+            "size-4 shrink-0",
+            busy && "animate-[pulse-soft_1.2s_infinite]",
+            call.status === "error" ? "text-destructive" : "text-muted-foreground"
+          )}
           strokeWidth={2}
         />
         <span className="font-mono font-medium">{call.name}</span>

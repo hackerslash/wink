@@ -3,12 +3,23 @@
 
 :root {
   /* paper / ink ------------------------------------------------------- */
-  --paper: oklch(97.6% 0.004 75);
-  --paper-2: oklch(99.2% 0.003 75);
-  --paper-3: oklch(95.2% 0.005 75);
-  --rule: oklch(89% 0.006 75);
+  --paper: oklch(98.4% 0.003 75);
+  --paper-2: oklch(100% 0 0);
+  --paper-3: oklch(95.4% 0.006 75);
+  /* The shell (sidebar, header, inspector) sits a step below the canvas so the
+   * three regions read apart without borders doing all the work. */
+  --shell: oklch(96.2% 0.006 75);
+  --rule: oklch(89% 0.007 75);
   --ink: oklch(20% 0.008 60);
   --ink-2: oklch(46% 0.008 65);
+
+  /* Semantic hues — each one earns its place by meaning something: where a
+   * model runs, whether a tool touches the network, how a step ended. */
+  --hue-local: oklch(52% 0.13 155);
+  --hue-cloud: oklch(53% 0.13 245);
+  --hue-warn: oklch(58% 0.14 65);
+  --hue-good: oklch(52% 0.13 150);
+  --hue-info: oklch(52% 0.11 275);
 
   /* accent — a highlighter, never a fill for large areas --------------- */
   --accent-solid: oklch(55% 0.17 30);
@@ -82,12 +93,20 @@
 }
 
 .dark {
-  --paper: oklch(15.5% 0.006 75);
-  --paper-2: oklch(19% 0.006 75);
-  --paper-3: oklch(23% 0.007 75);
-  --rule: oklch(28% 0.007 75);
+  /* Lifted off black: a pure-black canvas next to lighter chrome reads broken. */
+  --paper: oklch(19.5% 0.008 70);
+  --paper-2: oklch(23% 0.009 70);
+  --paper-3: oklch(27% 0.01 70);
+  --shell: oklch(17% 0.008 70);
+  --rule: oklch(31% 0.01 70);
   --ink: oklch(95.5% 0.004 80);
-  --ink-2: oklch(70% 0.006 75);
+  --ink-2: oklch(72% 0.008 75);
+
+  --hue-local: oklch(76% 0.15 155);
+  --hue-cloud: oklch(74% 0.13 245);
+  --hue-warn: oklch(80% 0.13 75);
+  --hue-good: oklch(76% 0.14 150);
+  --hue-info: oklch(75% 0.12 275);
 
   --accent-solid: oklch(68% 0.15 32);
   --accent-on: oklch(16% 0.01 60);

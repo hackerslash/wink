@@ -88,8 +88,8 @@ function StepRow({ step }: { step: ResearchStep }) {
         <span
           className={cn(
             "grid size-5 shrink-0 place-items-center rounded-lg",
-            step.status === "running" && "animate-pulse-soft bg-primary/20 text-primary",
-            step.status === "done" && "bg-emerald-500/15 text-emerald-500",
+            step.status === "running" && "animate-[pulse-soft_1.4s_infinite] bg-info/15 text-info",
+            step.status === "done" && "bg-good/12 text-good",
             step.status === "error" && "bg-destructive/15 text-destructive"
           )}
         >

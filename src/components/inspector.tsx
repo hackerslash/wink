@@ -45,7 +45,7 @@ export function Inspector() {
       )}
       style={{ transitionTimingFunction: "var(--ease-out)" }}
     >
-      <div className="flex h-full flex-col overflow-hidden border-l border-border bg-[var(--paper)]">
+      <div className="flex h-full flex-col overflow-hidden border-l border-border bg-[var(--shell)]">
         <div className="flex h-14 items-center gap-1 px-2 rule-b">
           {TABS.map((t) => (
             <button
@@ -643,7 +643,7 @@ function SourcesTab() {
                 </span>
               )}
               {c.collection && (
-                <span className="mt-0.5 inline-block rounded bg-emerald-500/15 px-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="mt-0.5 inline-block rounded-[4px] border border-local/40 px-1 text-[11px] font-medium text-local">
                   local · {c.collection}
                 </span>
               )}
@@ -686,7 +686,7 @@ function ToolsTab() {
                     {tool.title}
                   </span>
                   {tool.network && (
-                    <span className="rounded bg-sky-500/15 px-1 text-[11px] font-medium text-sky-600 dark:text-sky-400">
+                    <span className="rounded-[4px] border border-cloud/40 px-1 text-[11px] font-medium text-cloud">
                       network
                     </span>
                   )}

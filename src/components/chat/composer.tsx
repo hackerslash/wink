@@ -66,7 +66,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
   const activeCollections = collections.filter((c) => params.knowledgeCollections.includes(c.id))
 
   return (
-    <div data-pane="composer-wrap" className="px-3 pb-4 md:px-10 md:pb-6">
+    <div className="px-3 pb-4 md:px-10 md:pb-6">
       <div className="mx-auto w-full max-w-3xl">
         {queue.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
@@ -91,7 +91,6 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
         )}
 
         <div
-          data-pane="composer"
           onDragOver={(e) => {
             e.preventDefault()
             setDragging(true)

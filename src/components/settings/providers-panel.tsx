@@ -14,7 +14,7 @@ import {
 } from "@/components/icons"
 import { Switch } from "@/components/ui/switch"
 import { fmtTokens } from "@/lib/defaults"
-import { providerFromTemplate, TEMPLATES, type ProviderTemplate } from "@/lib/providers"
+import { keyPageFor, providerFromTemplate, TEMPLATES, type ProviderTemplate } from "@/lib/providers"
 import { useStore } from "@/lib/store"
 import type { ProviderConfig } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -58,7 +58,7 @@ export function ProvidersPanel() {
               <span className="flex w-full items-center gap-1.5">
                 <HugeiconsIcon
                   icon={t.local ? CpuIcon : CloudIcon}
-                  className="size-3.5 text-muted-foreground"
+                  className={cn("size-3.5", t.local ? "text-local" : "text-cloud")}
                   strokeWidth={2}
                 />
                 <span className="truncate text-[13.5px] font-semibold">{t.label}</span>
@@ -186,19 +186,27 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
   const [expanded, setExpanded] = React.useState(false)
 
   const usable = provider.models.filter((m) => !m.capabilities.embedding)
+  const keyPage = keyPageFor(provider)
 
   return (
     <div className="panel rounded-xl p-3.5">
       <div className="flex items-center gap-2">
         <HugeiconsIcon
           icon={provider.local ? CpuIcon : CloudIcon}
-          className="size-4 shrink-0 text-muted-foreground"
+          className={cn("size-4 shrink-0", provider.local ? "text-local" : "text-cloud")}
           strokeWidth={2}
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-[14px] font-semibold">{provider.label}</span>
-            <span className="rounded-[4px] border border-border px-1.5 py-px font-mono text-[11px] tracking-wider text-muted-foreground uppercase">
+            <span
+              className={cn(
+                "rounded-[4px] border px-1.5 py-px font-mono text-[11px] tracking-wider uppercase",
+                provider.local
+                  ? "border-local/40 text-local"
+                  : "border-cloud/40 text-cloud"
+              )}
+            >
               {provider.local ? "on device" : "cloud"}
             </span>
             {provider.hasKey && (
@@ -254,7 +262,8 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
       </div>
 
       {editingKey && (
-        <div className="mt-2 flex gap-1.5">
+        <div className="mt-2 space-y-1.5">
+          <div className="flex gap-1.5">
           <input
             autoFocus
             type="password"
@@ -263,17 +272,29 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
             placeholder="paste a new key"
             className="min-w-0 flex-1 rounded-md border border-border bg-[var(--paper)] px-2.5 py-1.5 font-mono text-[13px] outline-none"
           />
-          <button
-            type="button"
-            onClick={() => {
-              void store.getState().setProviderKey(provider.id, key.trim())
-              setKey("")
-              setEditingKey(false)
-            }}
-            className="ink-fill rounded-full px-3 text-[13px] font-semibold"
-          >
-            Save
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                void store.getState().setProviderKey(provider.id, key.trim())
+                setKey("")
+                setEditingKey(false)
+              }}
+              className="ink-fill rounded-full px-3 text-[13px] font-semibold"
+            >
+              Save
+            </button>
+          </div>
+          {keyPage && (
+            <a
+              href={keyPage}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--accent-solid)] hover:underline"
+            >
+              <HugeiconsIcon icon={KeyIcon} className="size-3" strokeWidth={2} />
+              Get a {provider.label} key ↗
+            </a>
+          )}
         </div>
       )}
 
@@ -296,7 +317,7 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
             className={cn(
               "flex items-center justify-center gap-1 rounded-md border px-2 py-1 text-[12px] font-medium transition-colors",
               provider.allow[field]
-                ? "border-border bg-[var(--paper-3)]"
+                ? "border-good/40 bg-good/10 text-good"
                 : "border-dashed border-border text-muted-foreground line-through"
             )}
             title={`${provider.allow[field] ? "Allowed" : "Blocked"}: send ${label.toLowerCase()} to ${provider.label}`}

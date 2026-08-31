@@ -38,7 +38,7 @@ export function ChatView() {
     <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--paper)]">
       <Header />
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           {!conv || messages.length === 0 ? (
             <Landing />
           ) : (
@@ -74,7 +74,7 @@ function Header() {
   const provider = providers.find((p) => p.id === selection.providerId)
 
   return (
-    <header className="rule-b flex h-14 shrink-0 items-center gap-2 px-3 md:px-4">
+    <header className="rule-b flex h-14 shrink-0 items-center gap-2 bg-[var(--shell)] px-3 md:px-4">
       <button
         type="button"
         aria-label="Toggle sidebar"
@@ -93,7 +93,7 @@ function Header() {
         {provider && (
           <HugeiconsIcon
             icon={provider.local ? CpuIcon : CloudIcon}
-            className="size-3.5 shrink-0 text-muted-foreground"
+            className={cn("size-3.5 shrink-0", provider.local ? "text-local" : "text-cloud")}
             strokeWidth={2}
           />
         )}

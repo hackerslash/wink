@@ -79,7 +79,6 @@ export function MessageList({
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        data-canvas
         className="h-full overflow-x-hidden overflow-y-auto px-4 pt-8 pb-4 md:px-10"
       >
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">

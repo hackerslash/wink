@@ -6,6 +6,7 @@ import {
   AddIcon,
   BrainIcon,
   CheckIcon,
+  KeyIcon,
   CloseIcon,
   DeleteIcon,
   DownloadIcon,
@@ -29,6 +30,7 @@ import {
   type Backup,
 } from "@/lib/exporting"
 import { newMcpServer, type McpServer } from "@/lib/mcp"
+import { probeEmbedding, reindexCollection } from "@/lib/rag"
 import { addManualMemory } from "@/lib/memory"
 import { useStore } from "@/lib/store"
 import { tools } from "@/lib/tools"
@@ -90,6 +92,71 @@ function TextInput(props: React.ComponentProps<"input">) {
 
 const sliderValue = (v: number | readonly number[]) => (Array.isArray(v) ? v[0] : (v as number))
 
+type SearchKind = Settings["search"]["kind"]
+
+/** Each option carries where to get its key, so nobody has to go hunting. */
+const SEARCH_KINDS: readonly {
+  id: SearchKind
+  label: string
+  hint: string
+  needsKey?: boolean
+  keyPage?: string
+  custom?: boolean
+  placeholder?: string
+}[] = [
+  { id: "none", label: "None", hint: "Web search and page reading stay off." },
+  {
+    id: "tavily",
+    label: "Tavily",
+    hint: "Search built for agents. Works from the browser.",
+    needsKey: true,
+    keyPage: "https://app.tavily.com/home",
+  },
+  {
+    id: "firecrawl",
+    label: "Firecrawl",
+    hint: "Search and clean page scraping from one key — pair it with the Firecrawl reader below.",
+    needsKey: true,
+    keyPage: "https://www.firecrawl.dev/app/api-keys",
+  },
+  {
+    id: "jina",
+    label: "Jina",
+    hint: "Usable without a key; a key lifts the rate limit.",
+    needsKey: true,
+    keyPage: "https://jina.ai/api-dashboard/",
+  },
+  {
+    id: "searxng",
+    label: "SearXNG",
+    hint: "Your own instance. Enable the JSON output format.",
+    custom: true,
+    placeholder: "http://localhost:8888",
+  },
+  {
+    id: "brave",
+    label: "Brave",
+    hint: "Often refuses browser calls (CORS). Use it behind your own proxy.",
+    needsKey: true,
+    keyPage: "https://api-dashboard.search.brave.com/app/keys",
+  },
+]
+
+function KeyLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--accent-solid)] hover:underline"
+    >
+      <HugeiconsIcon icon={KeyIcon} className="size-3" strokeWidth={2} />
+      Get a {label} key ↗
+    </a>
+  )
+}
+
+/** Compact inline picker. Selected reads as accent-filled, not a faint tint. */
 function Segmented<T extends string>({
   options,
   value,
@@ -100,15 +167,18 @@ function Segmented<T extends string>({
   onChange: (v: T) => void
 }) {
   return (
-    <div className="flex rounded-md border border-border p-0.5">
+    <div className="flex rounded-md border border-border bg-[var(--paper-2)] p-0.5">
       {options.map((o) => (
         <button
           key={o}
           type="button"
+          aria-pressed={value === o}
           onClick={() => onChange(o)}
           className={cn(
-            "rounded-[5px] px-2 py-0.5 text-[12px] font-medium capitalize transition-colors",
-            value === o ? "bg-[var(--paper-3)] text-foreground" : "text-muted-foreground"
+            "rounded-[5px] px-2 py-0.5 text-[12px] capitalize transition-colors",
+            value === o
+              ? "accent-fill font-semibold"
+              : "font-medium text-muted-foreground hover:text-foreground"
           )}
         >
           {o}
@@ -118,163 +188,340 @@ function Segmented<T extends string>({
   )
 }
 
+/** Full-width choice row: accent border, accent label and a tick on the pick. */
+function Choice<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly { id: T; label: string }[]
+  value: T
+  onChange: (v: T) => void
+}) {
+  return (
+    <div
+      className="grid gap-1.5"
+      style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
+    >
+      {options.map((o) => {
+        const on = value === o.id
+        return (
+          <button
+            key={o.id}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChange(o.id)}
+            className={cn(
+              "relative rounded-md border px-3 py-2 text-[13.5px] transition-colors",
+              on
+                ? "border-[var(--accent-solid)] bg-[var(--accent-soft)] font-semibold text-[var(--accent-solid)]"
+                : "border-border bg-[var(--paper-2)] font-medium text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
+            )}
+          >
+            {o.label}
+            {on && (
+              <HugeiconsIcon
+                icon={CheckIcon}
+                className="absolute top-1/2 right-2 size-3.5 -translate-y-1/2"
+                strokeWidth={3}
+              />
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // ------------------------------------------------------------------- tools
 
 export function ToolsPanel() {
   const settings = useStore((s) => s.settings)
   const providers = useStore((s) => s.providers)
+  const collections = useStore((s) => s.collections)
   const mcpServers = useStore((s) => s.mcpServers)
   const store = useStore
   const [searchKey, setSearchKey] = React.useState("")
+  const [customProvider, setCustomProvider] = React.useState("")
+  const [customModel, setCustomModel] = React.useState("")
+  const [probing, setProbing] = React.useState(false)
+  const [reindexing, setReindexing] = React.useState<string | null>(null)
 
   const embeddingModels = providers.flatMap((p) =>
     p.models.filter((m) => m.capabilities.embedding).map((m) => ({ provider: p, model: m }))
   )
+  const active = SEARCH_KINDS.find((k) => k.id === settings.search.kind)
+
+  const activeEmbedding =
+    settings.embedding.providerId === "local" ? "local-hash" : settings.embedding.model
+  const stale = collections.filter(
+    (c) => c.embeddingModel !== activeEmbedding || c.dims !== settings.embedding.dims
+  )
 
   const save = (patch: Partial<Settings>) => void store.getState().saveSettings(patch)
 
+  /** Selecting a model probes it, so a bad id or key fails here, not silently
+   * three documents later. */
+  const pick = async (providerId: string, model: string) => {
+    const previous = settings.embedding
+    const candidate = { providerId, model, dims: providerId === "local" ? 384 : 1536 }
+    setProbing(true)
+    await store.getState().saveSettings({ embedding: candidate })
+    try {
+      const dims = await probeEmbedding(store.getState().settings)
+      await store.getState().saveSettings({ embedding: { ...candidate, dims } })
+      store.getState().toast("success", `${model} · ${dims}d`)
+      setCustomModel("")
+    } catch (err) {
+      await store.getState().saveSettings({ embedding: previous })
+      store.getState().toast("error", `${model}: ${(err as Error).message}`)
+    } finally {
+      setProbing(false)
+    }
+  }
+
+  const reindex = async (collectionId: string, name: string) => {
+    setReindexing(collectionId)
+    try {
+      const n = await reindexCollection(collectionId, store.getState().settings)
+      await store.getState().reloadCollections()
+      store.getState().toast("success", `${name}: ${n} chunks re-embedded`)
+    } catch (err) {
+      store.getState().toast("error", (err as Error).message)
+    } finally {
+      setReindexing(null)
+    }
+  }
+
   return (
     <div>
-      <Section
-        title="Web search"
-        hint="Wink has no server, so search runs through a provider you choose. Tavily and Jina work from the browser; Brave often blocks browser CORS; SearXNG works if you enable its JSON format."
-      >
-        <div className="flex flex-wrap gap-1.5">
-          {(["none", "tavily", "jina", "searxng", "brave"] as const).map((kind) => (
-            <button
-              key={kind}
-              type="button"
-              onClick={() => save({ search: { ...settings.search, kind } })}
-              className={cn(
-                "rounded-md border border-border px-3 py-1 text-[13px] font-medium capitalize transition-colors",
-                settings.search.kind === kind
-                  ? "bg-[var(--paper-3)]"
-                  : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              {kind}
-            </button>
-          ))}
-        </div>
-        {settings.search.kind !== "none" && (
-          <>
-            <TextInput
-              placeholder={
-                settings.search.kind === "searxng"
-                  ? "http://localhost:8888"
-                  : "custom endpoint (optional)"
-              }
-              value={settings.search.endpoint}
-              onChange={(e) => save({ search: { ...settings.search, endpoint: e.target.value } })}
-            />
-            <div className="flex gap-1.5">
-              <TextInput
-                type="password"
-                placeholder={settings.search.hasKey ? "key stored — paste to replace" : "API key"}
-                value={searchKey}
-                onChange={(e) => setSearchKey(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={async () => {
-                  await vault.setSecret("search", searchKey.trim())
-                  save({ search: { ...settings.search, hasKey: Boolean(searchKey.trim()) } })
-                  setSearchKey("")
-                }}
-                className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold"
-              >
-                Save
-              </button>
-            </div>
-          </>
-        )}
-      </Section>
-
-      <Section
-        title="Page reader"
-        hint="Browsers block direct cross-origin fetches, so pages are read through a text-extraction proxy. Default is r.jina.ai; set your own to keep URLs private."
-      >
-        <TextInput
-          value={settings.reader.endpoint}
-          placeholder="https://r.jina.ai/"
-          onChange={(e) => save({ reader: { endpoint: e.target.value } })}
-        />
-      </Section>
-
-      <Section
-        title="Embeddings"
-        hint="Used for knowledge retrieval and memory similarity. Local hashing is lexical and offline; a real embedding model (e.g. nomic-embed-text on Ollama) gives semantic recall."
-      >
-        <div className="space-y-1">
-          <button
-            type="button"
-            onClick={() =>
-              save({ embedding: { providerId: "local", model: "local-hash", dims: 384 } })
-            }
-            className={cn(
-              "flex w-full items-center gap-2 rounded-md border border-border px-2.5 py-2 text-left transition-colors",
-              settings.embedding.providerId === "local"
-                ? "bg-[var(--paper-3)]"
-                : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-            )}
-          >
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13.5px] font-medium">Local hashing embedder</span>
-              <span className="block font-mono text-[11.5px] text-muted-foreground">
-                384d · offline · lexical
-              </span>
-            </span>
-            {settings.embedding.providerId === "local" && (
-              <HugeiconsIcon
-                icon={CheckIcon}
-                className="size-4 text-[var(--accent-solid)]"
-                strokeWidth={3}
-              />
-            )}
-          </button>
-          {embeddingModels.map(({ provider, model }) => {
-            const on =
-              settings.embedding.providerId === provider.id && settings.embedding.model === model.id
+      <Section title="Web search" hint="A browser cannot crawl, so search runs through a provider you choose.">
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+          {SEARCH_KINDS.map((k) => {
+            const on = settings.search.kind === k.id
             return (
               <button
-                key={`${provider.id}-${model.id}`}
+                key={k.id}
                 type="button"
-                onClick={() =>
-                  save({
-                    embedding: {
-                      providerId: provider.id,
-                      model: model.id,
-                      dims: model.id.includes("large") ? 3072 : 1536,
-                    },
-                  })
-                }
+                aria-pressed={on}
+                onClick={() => save({ search: { ...settings.search, kind: k.id } })}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-md border border-border px-2.5 py-2 text-left transition-colors",
-                  on ? "bg-[var(--paper-3)]" : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
+                  "relative rounded-md border px-3 py-2 text-left text-[13.5px] transition-colors",
+                  on
+                    ? "border-[var(--accent-solid)] bg-[var(--accent-soft)] font-semibold text-[var(--accent-solid)]"
+                    : "border-border bg-[var(--paper-2)] font-medium text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
                 )}
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13.5px] font-medium">{model.label}</span>
-                  <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
-                    {provider.label} {provider.local ? "· on device" : "· cloud"}
-                  </span>
-                </span>
+                {k.label}
                 {on && (
                   <HugeiconsIcon
                     icon={CheckIcon}
-                    className="size-4 text-[var(--accent-solid)]"
+                    className="absolute top-2.5 right-2 size-3.5"
                     strokeWidth={3}
                   />
                 )}
               </button>
             )
           })}
-          {embeddingModels.length === 0 && (
-            <p className="text-[12.5px] text-muted-foreground">
-              No embedding models found. Connect OpenAI, Gemini or Ollama and refresh models.
-            </p>
-          )}
         </div>
+
+        {active && active.id !== "none" && (
+          <div className="space-y-1.5 pt-1">
+            <p className="text-[13px] leading-relaxed text-muted-foreground">{active.hint}</p>
+            {active.id === "searxng" || active.custom ? (
+              <TextInput
+                placeholder={active.placeholder}
+                value={settings.search.endpoint}
+                onChange={(e) => save({ search: { ...settings.search, endpoint: e.target.value } })}
+              />
+            ) : null}
+            {active.needsKey && (
+              <>
+                <div className="flex gap-1.5">
+                  <TextInput
+                    type="password"
+                    placeholder={settings.search.hasKey ? "key stored — paste to replace" : "API key"}
+                    value={searchKey}
+                    onChange={(e) => setSearchKey(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await vault.setSecret("search", searchKey.trim())
+                      save({ search: { ...settings.search, hasKey: Boolean(searchKey.trim()) } })
+                      setSearchKey("")
+                      store.getState().toast("success", `${active.label} key saved`)
+                    }}
+                    className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold"
+                  >
+                    Save
+                  </button>
+                </div>
+                {active.keyPage && <KeyLink href={active.keyPage} label={active.label} />}
+              </>
+            )}
+          </div>
+        )}
+      </Section>
+
+      <Section title="Page reading" hint="Tools and research need a URL turned into text.">
+        <Choice
+          value={settings.reader.kind}
+          onChange={(kind) => save({ reader: { ...settings.reader, kind } })}
+          options={[
+            { id: "proxy", label: "Text proxy" },
+            { id: "firecrawl", label: "Firecrawl" },
+          ]}
+        />
+        {settings.reader.kind === "proxy" ? (
+          <TextInput
+            value={settings.reader.endpoint}
+            placeholder="https://r.jina.ai/"
+            onChange={(e) => save({ reader: { ...settings.reader, endpoint: e.target.value } })}
+          />
+        ) : (
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Uses Firecrawl's scrape endpoint with the key above — set Firecrawl as your search
+            provider, or paste its key there.
+          </p>
+        )}
+      </Section>
+
+      <Section
+        title="Embeddings"
+        hint="Used for knowledge retrieval and memory recall. Picking a model probes it once to read its real vector width."
+      >
+        <div className="rounded-md border border-border bg-[var(--paper-2)] px-3 py-2 text-[13px]">
+          <span className="font-medium">Active</span>{" "}
+          <span className="font-mono text-muted-foreground">
+            {settings.embedding.providerId === "local"
+              ? "local-hash"
+              : settings.embedding.model || "not set"}{" "}
+            · {settings.embedding.dims}d
+            {settings.embedding.providerId !== "local" &&
+              ` · ${providers.find((p) => p.id === settings.embedding.providerId)?.label ?? "unknown provider"}`}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => void pick("local", "local-hash")}
+          className={cn(
+            "flex w-full items-center gap-2 rounded-md border px-2.5 py-2 text-left transition-colors",
+            settings.embedding.providerId === "local"
+              ? "border-[var(--accent-solid)] bg-[var(--accent-soft)]"
+              : "border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
+          )}
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13.5px] font-medium">Local hashing embedder</span>
+            <span className="block font-mono text-[11.5px] text-muted-foreground">
+              384d · offline · lexical, not semantic
+            </span>
+          </span>
+          {settings.embedding.providerId === "local" && (
+            <HugeiconsIcon
+              icon={CheckIcon}
+              className="size-4 text-[var(--accent-solid)]"
+              strokeWidth={3}
+            />
+          )}
+        </button>
+
+        {embeddingModels.map(({ provider, model }) => {
+          const on =
+            settings.embedding.providerId === provider.id && settings.embedding.model === model.id
+          return (
+            <button
+              key={`${provider.id}-${model.id}`}
+              type="button"
+              onClick={() => void pick(provider.id, model.id)}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-md border px-2.5 py-2 text-left transition-colors",
+                on
+                  ? "border-[var(--accent-solid)] bg-[var(--accent-soft)]"
+                  : "border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
+              )}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[13.5px] font-medium">{model.label}</span>
+                <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+                  {model.id} · {provider.label}
+                </span>
+              </span>
+              {on && (
+                <HugeiconsIcon
+                  icon={CheckIcon}
+                  className="size-4 text-[var(--accent-solid)]"
+                  strokeWidth={3}
+                />
+              )}
+            </button>
+          )
+        })}
+
+        {/* Capability detection cannot know every embedding model, so any model
+            id on any provider can be entered by hand. */}
+        <div className="space-y-1.5 rounded-md border border-dashed border-border p-2.5">
+          <span className="block text-[12.5px] font-medium">Use any model id</span>
+          <div className="flex gap-1.5">
+            <select
+              value={customProvider}
+              onChange={(e) => setCustomProvider(e.target.value)}
+              className="w-32 shrink-0 rounded-md border border-border bg-[var(--paper-2)] px-2 py-1.5 text-[13px] outline-none"
+            >
+              <option value="">Provider…</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+            <TextInput
+              placeholder="nomic-embed-text"
+              value={customModel}
+              onChange={(e) => setCustomModel(e.target.value)}
+            />
+            <button
+              type="button"
+              disabled={!customProvider || !customModel.trim() || probing}
+              onClick={() => void pick(customProvider, customModel.trim())}
+              className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold disabled:opacity-50"
+            >
+              {probing ? "Testing…" : "Use"}
+            </button>
+          </div>
+        </div>
+
+        {stale.length > 0 && (
+          <div className="space-y-1.5 rounded-md border border-warn/40 bg-warn/8 p-2.5">
+            <span className="block text-[13px] font-semibold text-warn">
+              {stale.length} collection{stale.length > 1 ? "s" : ""} built with another model
+            </span>
+            <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+              Vectors from different models are not comparable. Re-embed to use them with the active
+              model — the text is already stored locally, nothing is re-uploaded.
+            </p>
+            {stale.map((c) => (
+              <div key={c.id} className="flex items-center gap-2 text-[12.5px]">
+                <span className="min-w-0 flex-1 truncate">
+                  {c.emoji} {c.name}{" "}
+                  <span className="font-mono text-muted-foreground">
+                    {c.embeddingModel} · {c.dims}d
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  disabled={Boolean(reindexing)}
+                  onClick={() => void reindex(c.id, c.name)}
+                  className="shrink-0 rounded-md border border-border bg-[var(--paper-2)] px-2 py-0.5 font-medium hover:bg-[var(--paper-3)] disabled:opacity-50"
+                >
+                  {reindexing === c.id ? "Re-embedding…" : "Re-embed"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </Section>
 
       <Section title="Tool permissions">
@@ -697,99 +944,61 @@ export function AppearancePanel() {
   return (
     <div>
       <Section title="Theme">
-        <div className="flex gap-1.5">
-          {(["light", "dark", "system"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => {
-                setTheme(t)
-                void store.getState().saveSettings({ theme: t })
-              }}
-              className={cn(
-                "flex-1 rounded-md border border-border px-3 py-2 text-[13.5px] font-medium capitalize transition-colors",
-                theme === t ? "bg-[var(--paper-3)]" : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+        <Choice
+          value={theme}
+          onChange={(t) => {
+            setTheme(t)
+            void store.getState().saveSettings({ theme: t })
+          }}
+          options={[
+            { id: "light", label: "Light" },
+            { id: "dark", label: "Dark" },
+            { id: "system", label: "System" },
+          ]}
+        />
       </Section>
 
-      <Section
-        title="Surface"
-        hint="Solid keeps every pane opaque. Liquid glass makes them translucent and blurs what sits behind — heavier on the GPU, and it lights the background with your accent."
-      >
-        <div className="flex gap-1.5">
-          {(
-            [
-              ["solid", "Solid"],
-              ["glass", "Liquid glass"],
-            ] as const
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => void store.getState().saveSettings({ surface: id })}
-              className={cn(
-                "flex-1 rounded-md border border-border px-3 py-2 text-[13.5px] font-medium transition-colors",
-                settings.surface === id
-                  ? "bg-[var(--paper-3)]"
-                  : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Accent" hint="One solid accent, used as a highlighter — never as a wash.">
+      <Section title="Accent">
         <div className="flex flex-wrap gap-1.5">
-          {Object.entries(ACCENTS).map(([id, tone]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => void store.getState().saveSettings({ accent: id })}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[13px] font-medium transition-colors",
-                settings.accent === id
-                  ? "border-foreground/40 bg-[var(--paper-3)]"
-                  : "border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              <AccentDot color={tone.light} />
-              {tone.label}
-            </button>
-          ))}
+          {Object.entries(ACCENTS).map(([id, tone]) => {
+            const on = settings.accent === id
+            return (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => void store.getState().saveSettings({ accent: id })}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[13px] transition-colors",
+                  on
+                    ? "border-foreground/60 bg-[var(--paper-3)] font-semibold"
+                    : "border-border bg-[var(--paper-2)] font-medium text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <AccentDot color={tone.light} />
+                {tone.label}
+                {on && (
+                  <HugeiconsIcon icon={CheckIcon} className="size-3" strokeWidth={3} />
+                )}
+              </button>
+            )
+          })}
         </div>
       </Section>
 
-      <Section
-        title="Motion"
-        hint="Reduce or switch off the small transitions. The interface is solid either way."
-      >
-        <div className="flex gap-1.5">
-          {(["full", "reduced", "off"] as const).map((level) => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => void store.getState().saveSettings({ effects: level })}
-              className={cn(
-                "flex-1 rounded-md border border-border px-3 py-2 text-[13.5px] font-medium capitalize transition-colors",
-                settings.effects === level
-                  ? "bg-[var(--paper-3)]"
-                  : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              {level}
-            </button>
-          ))}
-        </div>
+      <Section title="Motion" hint="Off stops every transition, including the streaming caret.">
+        <Choice
+          value={settings.effects}
+          onChange={(effects) => void store.getState().saveSettings({ effects })}
+          options={[
+            { id: "full", label: "Full" },
+            { id: "reduced", label: "Reduced" },
+            { id: "off", label: "Off" },
+          ]}
+        />
       </Section>
 
-      <Section title="Behaviour">
+      <Section title="Composing">
         <Row label="Send with" hint="Shift+Enter always inserts a newline">
           <Segmented
             options={["enter", "mod-enter"] as const}
@@ -797,10 +1006,19 @@ export function AppearancePanel() {
             onChange={(k) => void store.getState().saveSettings({ sendKey: k })}
           />
         </Row>
-        <Row label="Show token and cost counts">
+      </Section>
+
+      <Section title="Readouts">
+        <Row label="Token and cost counts">
           <Switch
             checked={settings.showTokenCounts}
             onCheckedChange={(v) => void store.getState().saveSettings({ showTokenCounts: v })}
+          />
+        </Row>
+        <Row label="Tokens per second" hint="Live while streaming, measured when the turn ends">
+          <Switch
+            checked={settings.showTokenRate}
+            onCheckedChange={(v) => void store.getState().saveSettings({ showTokenRate: v })}
           />
         </Row>
       </Section>

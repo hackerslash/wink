@@ -107,11 +107,16 @@ export function ModelPicker() {
                 <div className="flex items-center gap-1.5 px-2.5 py-2">
                   <HugeiconsIcon
                     icon={provider.local ? CpuIcon : CloudIcon}
-                    className="size-3.5 text-muted-foreground"
+                    className={cn("size-3.5", provider.local ? "text-local" : "text-cloud")}
                     strokeWidth={2}
                   />
                   <span className="text-[13px] font-semibold">{provider.label}</span>
-                  <span className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase">
+                  <span
+                    className={cn(
+                      "font-mono text-[11px] tracking-wider uppercase",
+                      provider.local ? "text-local" : "text-cloud"
+                    )}
+                  >
                     {provider.local ? "local" : "cloud"}
                   </span>
                 </div>

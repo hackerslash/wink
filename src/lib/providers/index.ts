@@ -105,6 +105,7 @@ export const TEMPLATES: ProviderTemplate[] = [
     local: false,
     needsKey: true,
     hint: "Very fast open-weight inference.",
+    docs: "https://console.groq.com/keys",
   },
   {
     label: "DeepSeek",
@@ -113,6 +114,7 @@ export const TEMPLATES: ProviderTemplate[] = [
     local: false,
     needsKey: true,
     hint: "Chat and reasoning models.",
+    docs: "https://platform.deepseek.com/api_keys",
   },
   {
     label: "Mistral",
@@ -121,6 +123,7 @@ export const TEMPLATES: ProviderTemplate[] = [
     local: false,
     needsKey: true,
     hint: "Mistral and Codestral.",
+    docs: "https://console.mistral.ai/api-keys/",
   },
   {
     label: "xAI",
@@ -129,6 +132,7 @@ export const TEMPLATES: ProviderTemplate[] = [
     local: false,
     needsKey: true,
     hint: "Grok models.",
+    docs: "https://console.x.ai/",
   },
   {
     label: "Custom endpoint",
@@ -139,6 +143,13 @@ export const TEMPLATES: ProviderTemplate[] = [
     hint: "Any OpenAI-compatible /chat/completions server, including your own gateway.",
   },
 ]
+
+/** Where to get a key for an already-connected provider. */
+export function keyPageFor(cfg: { baseUrl: string; label: string }) {
+  return TEMPLATES.find(
+    (t) => t.docs && ((t.baseUrl && cfg.baseUrl.startsWith(t.baseUrl)) || t.label === cfg.label)
+  )?.docs
+}
 
 export function providerFromTemplate(t: ProviderTemplate): ProviderConfig {
   return {

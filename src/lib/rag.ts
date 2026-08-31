@@ -227,6 +227,54 @@ export function citationsToPrompt(cites: Citation[]) {
     .join("\n\n")
 }
 
+/**
+ * Embeds one probe string with the current settings and reports the real vector
+ * width. Model ids don't tell you their dimensionality, and a wrong guess makes
+ * retrieval silently useless — so ask the endpoint.
+ */
+export async function probeEmbedding(settings: Settings): Promise<number> {
+  const res = await call({ op: "embed", texts: ["dimension probe"], embed: await embedConfig(settings) })
+  const dims = res.op === "vectors" ? res.vectors[0]?.length : 0
+  if (!dims) throw new Error("The endpoint returned no vector")
+  return dims
+}
+
+/**
+ * Re-embeds a collection's stored chunk text with the current embedding model.
+ * Vectors from different models are not comparable, so switching models leaves
+ * old collections stranded until they are rebuilt — the text is already local,
+ * so no re-upload is needed.
+ */
+export async function reindexCollection(
+  collectionId: ID,
+  settings: Settings,
+  onProgress?: (done: number, total: number) => void
+) {
+  const rows = await chunkStore.byCollection(collectionId)
+  if (!rows.length) return 0
+  const cfg = await embedConfig(settings)
+  const batch = cfg.kind === "local" ? 256 : 32
+  for (let i = 0; i < rows.length; i += batch) {
+    const slice = rows.slice(i, i + batch)
+    const res = await call({ op: "embed", texts: slice.map((c) => c.text), embed: cfg })
+    if (res.op !== "vectors") throw new Error("Embedding failed")
+    await chunkStore.putMany(
+      slice.map((c, j) => ({ ...c, vector: new Float32Array(res.vectors[j]) }))
+    )
+    onProgress?.(Math.min(i + batch, rows.length), rows.length)
+  }
+  const col = await collections.get(collectionId)
+  if (col)
+    await collections.put({
+      ...col,
+      embeddingProviderId: settings.embedding.providerId,
+      embeddingModel:
+        settings.embedding.providerId === "local" ? "local-hash" : settings.embedding.model,
+      dims: settings.embedding.providerId === "local" ? LOCAL_DIMS : settings.embedding.dims,
+    })
+  return rows.length
+}
+
 export async function embedTexts(texts: string[], settings: Settings): Promise<number[][]> {
   const res = await call({ op: "embed", texts, embed: await embedConfig(settings) })
   return res.op === "vectors" ? res.vectors : []

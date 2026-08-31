@@ -18,6 +18,7 @@ import {
 import { MarkdownView } from "@/components/markdown-view"
 import { ResearchView } from "@/components/chat/research-view"
 import { ToolCard } from "@/components/chat/tool-card"
+import { estimateTokens } from "@/lib/chunk"
 import { attachments as attachmentStore } from "@/lib/db"
 import { fmtCost, fmtTokens } from "@/lib/defaults"
 import type { Artifact } from "@/lib/markdown"
@@ -48,6 +49,7 @@ export const MessageView = React.memo(function MessageView({
   const [draft, setDraft] = React.useState(message.content)
   const [copied, setCopied] = React.useState(false)
   const showCounts = useStore((s) => s.settings.showTokenCounts)
+  const showRate = useStore((s) => s.settings.showTokenRate)
   const store = useStore
   const isUser = message.role === "user"
 
@@ -60,6 +62,24 @@ export const MessageView = React.memo(function MessageView({
     [inlineThink, message.content]
   )
   const reasoning = message.reasoning ?? inlineThink
+
+  const [now, setNow] = React.useState(() => Date.now())
+  React.useEffect(() => {
+    if (!streaming || !showRate) return
+    const timer = setInterval(() => setNow(Date.now()), 500)
+    return () => clearInterval(timer)
+  }, [streaming, showRate])
+
+  const rate = React.useMemo(() => {
+    if (!showRate) return null
+    if (streaming) {
+      const seconds = (now - message.createdAt) / 1000
+      const produced = estimateTokens(body) + estimateTokens(reasoning ?? "")
+      return seconds > 0.4 ? Math.round(produced / seconds) : null
+    }
+    if (!message.usage?.ms || !message.usage.out) return null
+    return Math.round(message.usage.out / (message.usage.ms / 1000))
+  }, [showRate, streaming, now, message.createdAt, message.usage, body, reasoning])
 
   const copy = () => {
     void navigator.clipboard.writeText(message.content)
@@ -135,6 +155,11 @@ export const MessageView = React.memo(function MessageView({
                 {(message.usage.ms / 1000).toFixed(1)}s
               </span>
             ) : null}
+            {rate !== null && (
+              <span className="font-mono text-[11.5px] text-muted-foreground tabular-nums">
+                {rate} tok/s
+              </span>
+            )}
           </div>
         )}
 

@@ -266,8 +266,6 @@ export interface Settings {
   theme: "light" | "dark" | "system"
   accent: string
   density: "comfy" | "compact"
-  /** Surface treatment: opaque panes, or translucent blurred glass. */
-  surface: "solid" | "glass"
   effects: "full" | "reduced" | "off"
   defaultProviderId: ID | null
   defaultModel: string | null
@@ -278,15 +276,18 @@ export interface Settings {
     dims: number
   }
   search: {
-    kind: "tavily" | "brave" | "searxng" | "jina" | "none"
+    kind: "tavily" | "brave" | "searxng" | "jina" | "firecrawl" | "none"
     endpoint: string
     hasKey: boolean
   }
-  reader: { endpoint: string }
+  /** How a URL is turned into text: a text-extraction proxy, or Firecrawl. */
+  reader: { kind: "proxy" | "firecrawl"; endpoint: string }
   toolPermissions: Record<string, "ask" | "always" | "never">
   vault: { enabled: boolean; salt?: string; check?: string }
   memory: { enabled: boolean; autoExtract: boolean; maxInjected: number }
   sendKey: "enter" | "mod-enter"
   showTokenCounts: boolean
+  /** Streaming throughput readout on assistant turns. */
+  showTokenRate: boolean
   onboarded: boolean
 }
