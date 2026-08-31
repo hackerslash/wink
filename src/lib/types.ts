@@ -266,6 +266,8 @@ export interface Settings {
   theme: "light" | "dark" | "system"
   accent: string
   density: "comfy" | "compact"
+  /** Surface treatment: opaque panes, or translucent blurred glass. */
+  surface: "solid" | "glass"
   effects: "full" | "reduced" | "off"
   defaultProviderId: ID | null
   defaultModel: string | null

@@ -44,11 +44,12 @@ export function App() {
     }
     apply()
     root.dataset.effects = settings.effects
+    root.dataset.surface = settings.surface
     // The theme provider toggles a class on <html>; re-resolve when it does.
     const observer = new MutationObserver(apply)
     observer.observe(root, { attributes: true, attributeFilter: ["class"] })
     return () => observer.disconnect()
-  }, [settings.accent, settings.effects])
+  }, [settings.accent, settings.effects, settings.surface])
 
   useHotkeys()
 

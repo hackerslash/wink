@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: "light",
   accent: "vermilion",
   density: "comfy",
+  surface: "solid",
   effects: "full",
   defaultProviderId: null,
   defaultModel: null,

@@ -61,7 +61,10 @@ export function Landing() {
   )
 
   return (
-    <div className="flex min-h-0 flex-1 items-center overflow-y-auto px-4 py-8 md:px-10">
+    <div
+      data-canvas
+      className="flex min-h-0 flex-1 items-center overflow-y-auto px-4 py-8 md:px-10"
+    >
       <div className="mx-auto w-full max-w-3xl">
         {hero}
 

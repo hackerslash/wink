@@ -717,6 +717,34 @@ export function AppearancePanel() {
         </div>
       </Section>
 
+      <Section
+        title="Surface"
+        hint="Solid keeps every pane opaque. Liquid glass makes them translucent and blurs what sits behind — heavier on the GPU, and it lights the background with your accent."
+      >
+        <div className="flex gap-1.5">
+          {(
+            [
+              ["solid", "Solid"],
+              ["glass", "Liquid glass"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => void store.getState().saveSettings({ surface: id })}
+              className={cn(
+                "flex-1 rounded-md border border-border px-3 py-2 text-[13.5px] font-medium transition-colors",
+                settings.surface === id
+                  ? "bg-[var(--paper-3)]"
+                  : "bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
       <Section title="Accent" hint="One solid accent, used as a highlighter — never as a wash.">
         <div className="flex flex-wrap gap-1.5">
           {Object.entries(ACCENTS).map(([id, tone]) => (

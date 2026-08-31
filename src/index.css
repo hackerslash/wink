@@ -125,6 +125,12 @@
 }
 
 @layer base {
+  /* Keep the browser's own canvas, scrollbars and form controls on the same
+   * side as the theme — otherwise a dark-preference OS flashes a dark page
+   * before the stylesheet lands. */
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
+
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -167,6 +173,139 @@
     outline: 2px solid var(--accent-solid);
     outline-offset: 2px;
   }
+}
+
+/* ------------------------------------------------------- glass surface mode */
+
+/* Opt-in from Appearance. Panes go translucent and blur what is behind them,
+ * which only reads as glass if there is something back there — hence the soft
+ * field on the body. Tokens carry the colour; a short list of structural panes
+ * carries the blur, because blurring every small control is both wrong and
+ * expensive. */
+[data-surface="glass"] {
+  --glass-blur: 26px;
+  /* The field sits a few steps below the panes on purpose: glass only reads as
+   * glass when it is lighter than what it covers. */
+  --paper: oklch(92.5% 0.02 70);
+  --paper-2: oklch(100% 0 0 / 0.58);
+  --paper-3: oklch(100% 0 0 / 0.32);
+  --rule: oklch(32% 0.012 60 / 0.12);
+  --glass-sheen: oklch(100% 0 0 / 0.6);
+  --glass-cast: oklch(30% 0.03 60 / 0.14);
+}
+
+[data-surface="glass"].dark {
+  --paper: oklch(13.5% 0.012 70);
+  --paper-2: oklch(82% 0.012 75 / 0.13);
+  --paper-3: oklch(84% 0.012 75 / 0.08);
+  --rule: oklch(100% 0 0 / 0.13);
+  --glass-sheen: oklch(100% 0 0 / 0.16);
+  --glass-cast: oklch(0% 0 0 / 0.45);
+}
+
+/* The field the glass refracts. Two soft accent washes, nothing animated. */
+[data-surface="glass"] body::before {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      34% 40% at 14% 8%,
+      color-mix(in oklab, var(--accent-solid) 55%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      38% 44% at 90% 86%,
+      color-mix(in oklab, var(--accent-solid) 42%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      30% 34% at 62% 22%,
+      color-mix(in oklab, var(--foreground) 12%, transparent),
+      transparent 70%
+    );
+  filter: blur(60px);
+  opacity: 0.55;
+}
+
+[data-surface="glass"].dark body::before {
+  opacity: 0.42;
+}
+
+/* The shell must get out of the way: its opaque paper would otherwise cover the
+ * field, leaving the panes blurring nothing. Ancestors go transparent; the
+ * panes themselves take the translucent paper. */
+[data-surface="glass"] :is(#root > div, main, aside) {
+  background: transparent;
+}
+
+[data-surface="glass"] :is(aside > div, header) {
+  background: var(--paper-2);
+}
+
+[data-surface="glass"]
+  :is(
+    header,
+    [data-pane],
+    aside > div,
+    .panel,
+    .panel-2,
+    [data-slot="dialog-content"],
+    [data-slot="popover-content"],
+    [data-slot="dropdown-menu-content"],
+    [data-slot="select-content"]
+  ) {
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+}
+
+/* A hairline of light along the top edge is what sells thickness. */
+[data-surface="glass"]
+  :is(.panel, .panel-2, [data-pane], [data-slot="dialog-content"], [data-slot="popover-content"]) {
+  box-shadow:
+    inset 0 1px 0 var(--glass-sheen),
+    0 10px 32px -16px var(--glass-cast);
+}
+
+[data-surface="glass"] .raised {
+  box-shadow:
+    inset 0 1px 0 var(--glass-sheen),
+    0 2px 6px -2px var(--glass-cast),
+    0 18px 44px -20px var(--glass-cast);
+}
+
+/* Content sliding under the chrome is what makes the blur visible, so in glass
+ * mode the composer floats over the canvas instead of sitting below it. */
+[data-surface="glass"] [data-pane="composer-wrap"] {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+}
+[data-surface="glass"] [data-canvas] {
+  padding-bottom: 9.5rem;
+}
+
+/* Code keeps its own opaque surface — text on blurred glass is unreadable. */
+[data-surface="glass"] .code-block {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Blur is the expensive part, so the effects budget scales it: reduced halves
+ * the radius, off drops it entirely. */
+[data-surface="glass"][data-effects="reduced"] {
+  --glass-blur: 12px;
+}
+
+/* Blur is GPU work; the effects budget switches it off with everything else. */
+[data-surface="glass"][data-effects="off"] * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+[data-surface="glass"][data-effects="off"] body::before {
+  display: none;
 }
 
 /* Effects budget: the visual layer is solid, so this only governs animation. */
