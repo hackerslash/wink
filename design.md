@@ -25,9 +25,12 @@ chrome, plus five semantic hues that each mean something.
   panes flush to the window edge; the conversation is an inset white sheet with
   an 18 px radius, a hairline, and a soft shadow, separated from the chrome by
   a 10 px gap of visible field.
-- Header and composer are **glass bars** pinned inside the sheet. The
-  transcript scrolls behind them and is visibly frosted by them. This is the
-  system's signature moment; nothing else may imitate it.
+- The header is a **glass bar** pinned inside the sheet. The transcript
+  scrolls behind it and is visibly frosted by it. This is the system's
+  signature moment; nothing else may imitate it.
+- The composer is pinned to the same sheet and shares its ground
+  (`sheet-foot`): no tint, no rule, and a 24 px fade above it so the
+  transcript dissolves into it.
 - Empty state / landing: **Stat-Led**. One declarative line, a short lede,
   entry actions, real counts from local storage. No hero art.
 - Settings: **Long Document**. A left rail of sections, one column of rows,
@@ -67,7 +70,7 @@ Three glass materials. Each is a tint plus a blur plus a specular top edge.
 | utility | where | tint | blur |
 | --- | --- | --- | --- |
 | `glass` | sidebar, inspector (over the field) | white 62 % / dark white 4.5 % | 40 px |
-| `glass-bar` | header, composer (over the sheet) | field 68 % / dark field 72 % | 40 px |
+| `glass-bar` | header (over the sheet) | field 24 % / dark field 28 % | 40 px |
 | `glass-overlay` | dialogs, menus, palette, toasts | white 82 % / dark grey 72 % | 48 px |
 
 All three add `saturate(180%)`; without it a frosted surface goes grey and

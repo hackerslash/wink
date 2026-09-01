@@ -78,9 +78,9 @@
   -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
 }
 
-/* Bar glass, over the white sheet: header and composer. Tinted toward the
- * field so the bar has a value of its own, and thin enough that the
- * transcript stays visibly blurred through it. */
+/* Bar glass, over the white sheet: the header. Tinted toward the field just
+ * enough to read as frosted, and thin enough that the transcript stays
+ * visibly blurred through it. */
 @utility glass-bar {
   background: var(--mat-bar);
   backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
@@ -117,6 +117,23 @@
 @utility panel-2 {
   background: var(--paper-3);
   border: 1px solid var(--hairline);
+}
+
+/* The composer shares the sheet's ground instead of sitting on a bar. The fade
+ * replaces the blur: without it the transcript clips at a hard edge. */
+@utility sheet-foot {
+  position: relative;
+  background: var(--paper);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 100%;
+    height: var(--space-lg);
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--paper));
+  }
 }
 
 @utility accent-fill {

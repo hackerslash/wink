@@ -29,9 +29,9 @@
 
   /* glass — a tint plus a blur, plus a specular top edge for thickness ---
    * `--mat-chrome` sits over the field and lifts with white; `--mat-bar` sits
-   * over the white sheet and has to tint down to have a value of its own. */
+   * over the white sheet and tints down just enough to read as frosted. */
   --mat-chrome: oklch(100% 0 0 / 0.62);
-  --mat-bar: color-mix(in oklab, var(--canvas) 68%, transparent);
+  --mat-bar: color-mix(in oklab, var(--canvas) 24%, transparent);
   --mat-overlay: oklch(100% 0 0 / 0.82);
   --mat-scrim: oklch(90% 0.004 262 / 0.5);
   --mat-blur: 40px;
@@ -153,7 +153,7 @@
   --hairline: color-mix(in oklab, oklch(100% 0 0) 11%, transparent);
 
   --mat-chrome: oklch(100% 0 0 / 0.045);
-  --mat-bar: color-mix(in oklab, var(--canvas) 72%, transparent);
+  --mat-bar: color-mix(in oklab, var(--canvas) 28%, transparent);
   --mat-overlay: oklch(30% 0.008 262 / 0.72);
   --mat-scrim: oklch(10% 0.006 262 / 0.5);
   --edge-top: oklch(100% 0 0 / 0.14);

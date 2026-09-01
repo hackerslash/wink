@@ -23,6 +23,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
   const mode = useStore((s) => s.mode)
   const depth = useStore((s) => s.researchDepth)
   const conv = useStore((s) => s.conversations.find((c) => c.id === s.activeId))
+  const fresh = useStore((s) => s.messages.length === 0)
   const settings = useStore((s) => s.settings)
   const collections = useStore((s) => s.collections)
   const selection = useActiveModel()
@@ -66,7 +67,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
   const activeCollections = collections.filter((c) => params.knowledgeCollections.includes(c.id))
 
   return (
-    <div className="glass-bar rule-t px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-10 md:pt-3 md:pb-4">
+    <div className="sheet-foot px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:px-10 md:pt-2 md:pb-3">
       <div className="mx-auto w-full max-w-3xl">
         {queue.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
@@ -240,18 +241,20 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
           </div>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-center gap-3 text-[12px] text-muted-foreground">
-          <span>
-            <kbd>{settings.sendKey === "enter" ? "↵" : "⌘↵"}</kbd> send
-          </span>
-          <span>
-            <kbd>⌘K</kbd> commands
-          </span>
-          <span>
-            <kbd>⌘/</kbd> models
-          </span>
-          <span className="hidden sm:inline">Stored on this device only</span>
-        </div>
+        {fresh && (
+          <div className="mt-2 flex items-center justify-center gap-3 text-[12px] text-muted-foreground">
+            <span>
+              <kbd>{settings.sendKey === "enter" ? "↵" : "⌘↵"}</kbd> send
+            </span>
+            <span>
+              <kbd>⌘K</kbd> commands
+            </span>
+            <span>
+              <kbd>⌘/</kbd> models
+            </span>
+            <span className="hidden sm:inline">Stored on this device only</span>
+          </div>
+        )}
       </div>
     </div>
   )
