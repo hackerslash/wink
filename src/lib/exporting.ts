@@ -1,6 +1,5 @@
 import {
   assistants,
-  attachments,
   chunks,
   collections,
   conversations,
@@ -13,7 +12,20 @@ import {
   providers,
   uid,
 } from "./db"
-import type { Conversation, ID, Message } from "./types"
+import type {
+  Assistant,
+  Chunk,
+  Collection,
+  Conversation,
+  Folder,
+  ID,
+  KnowledgeDoc,
+  MemoryItem,
+  Message,
+  Preset,
+  ProviderConfig,
+  Settings,
+} from "./types"
 
 export function download(name: string, content: string | Blob, mime = "application/json") {
   const blob = typeof content === "string" ? new Blob([content], { type: mime }) : content
@@ -75,17 +87,18 @@ export interface Backup {
   app: "wink"
   version: 1
   exportedAt: number
-  conversations: unknown[]
-  messages: unknown[]
-  folders: unknown[]
-  assistants: unknown[]
-  presets: unknown[]
-  providers: unknown[]
-  memories: unknown[]
-  collections: unknown[]
-  docs: unknown[]
-  chunks: unknown[]
-  settings: unknown
+  conversations: Conversation[]
+  messages: Message[]
+  folders: Folder[]
+  assistants: Assistant[]
+  presets: Preset[]
+  providers: ProviderConfig[]
+  memories: MemoryItem[]
+  collections: Collection[]
+  docs: KnowledgeDoc[]
+  /** Float32Array does not survive JSON. */
+  chunks: (Omit<Chunk, "vector"> & { vector?: number[] })[]
+  settings: Settings | undefined
   /** Secrets are deliberately excluded. */
   secretsIncluded: false
 }
@@ -105,7 +118,6 @@ export async function exportBackup(opts = { knowledge: true }): Promise<Backup> 
     memories: await memories.all(),
     collections: opts.knowledge ? await collections.all() : [],
     docs: opts.knowledge ? await docs.all() : [],
-    // Float32Array does not survive JSON; store plain arrays.
     chunks: chunkRows.map((c) => ({ ...c, vector: c.vector ? Array.from(c.vector) : undefined })),
     settings: await kv.get("settings"),
     secretsIncluded: false,
@@ -125,22 +137,19 @@ export async function importBackup(data: Backup, mode: "merge" | "replace") {
     return remap.get(old)!
   }
 
-  await folders.putMany((data.folders as never[]).map((f) => ({ ...(f as object) }) as never))
-  await assistants.putMany((data.assistants as never[]).map((a) => ({ ...(a as object) }) as never))
-  await presets.putMany((data.presets as never[]).map((p) => ({ ...(p as object) }) as never))
-  await memories.putMany((data.memories as never[]).map((m) => ({ ...(m as object) }) as never))
-  await providers.putMany((data.providers as never[]).map((p) => ({ ...(p as object) }) as never))
-  await collections.putMany((data.collections as never[]).map((c) => ({ ...(c as object) }) as never))
-  await docs.putMany((data.docs as never[]).map((d) => ({ ...(d as object) }) as never))
+  await folders.putMany(data.folders)
+  await assistants.putMany(data.assistants)
+  await presets.putMany(data.presets)
+  await memories.putMany(data.memories)
+  await providers.putMany(data.providers)
+  await collections.putMany(data.collections)
+  await docs.putMany(data.docs)
   await chunks.putMany(
-    (data.chunks as { vector?: number[] }[]).map((c) => ({
-      ...(c as object),
-      vector: c.vector ? new Float32Array(c.vector) : undefined,
-    })) as never[]
+    data.chunks.map((c) => ({ ...c, vector: c.vector ? new Float32Array(c.vector) : undefined }))
   )
 
-  const convs = data.conversations as Conversation[]
-  const msgs = data.messages as Message[]
+  const convs = data.conversations
+  const msgs = data.messages
   for (const conv of convs) await conversations.put({ ...conv, id: idFor(conv.id) })
   await messages.putMany(
     msgs.map((m) => ({
@@ -217,9 +226,4 @@ export async function importChatGptExport(json: unknown) {
     count++
   }
   return count
-}
-
-export async function attachmentUsage() {
-  const rows = await attachments.all()
-  return rows.reduce((n, r) => n + r.blob.size, 0)
 }

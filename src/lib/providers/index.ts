@@ -170,11 +170,7 @@ export function providerFromTemplate(t: ProviderTemplate): ProviderConfig {
 
 const RETRYABLE = /\b(429|5\d\d|network|fetch failed|load failed|timed out)\b/i
 
-/**
- * Streams a chat completion, retrying transient failures with backoff. Retries
- * only happen while nothing has been emitted, so the UI never sees a partial
- * answer restart mid-sentence.
- */
+/** Retries only before the first token, so the UI never sees an answer restart mid-sentence. */
 export async function* streamChat(
   cfg: ProviderConfig,
   req: ChatRequest,
@@ -203,14 +199,4 @@ export async function* streamChat(
 
 export async function listModels(cfg: ProviderConfig) {
   return providerFor(cfg).listModels(cfg, await providerKey(cfg))
-}
-
-export async function embedWithProvider(
-  cfg: ProviderConfig,
-  model: string,
-  texts: string[]
-): Promise<number[][]> {
-  const provider = providerFor(cfg)
-  if (!provider.embed) throw new Error(`${cfg.label} cannot produce embeddings`)
-  return provider.embed(cfg, await providerKey(cfg), model, texts)
 }

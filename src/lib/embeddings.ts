@@ -2,11 +2,7 @@ import { terms } from "./chunk"
 
 export const LOCAL_DIMS = 384
 
-/**
- * Zero-dependency local embedder: hashes word and character trigrams into a
- * fixed vector. Lexical, not semantic — good enough for hybrid retrieval when
- * no embedding endpoint is configured, and it never leaves the machine.
- */
+/** Hashes word and character trigrams into a fixed vector: lexical, not semantic. */
 export function localEmbed(text: string, dims = LOCAL_DIMS): number[] {
   const vec = new Array<number>(dims).fill(0)
   const add = (token: string, weight: number) => {

@@ -14,10 +14,7 @@ const EXT: Record<Artifact["kind"], string> = {
   markdown: "md",
 }
 
-/**
- * Preview runs in a sandboxed iframe with no same-origin access, so generated
- * HTML cannot reach IndexedDB, the vault or the parent document.
- */
+/** Sandboxed without allow-same-origin: generated HTML cannot reach IndexedDB or the vault. */
 export function ArtifactViewer({ artifact, onClose }: { artifact: Artifact; onClose: () => void }) {
   const previewable =
     artifact.kind === "html" || artifact.kind === "svg" || artifact.kind === "markdown"

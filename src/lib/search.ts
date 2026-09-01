@@ -17,11 +17,7 @@ const excerptAround = (text: string, needle: string, radius = 90) => {
   }`
 }
 
-/**
- * Full-text scan over every stored message. IndexedDB has no text index, so we
- * cursor through and stop early — fast enough for tens of thousands of rows and
- * it keeps search working with zero index maintenance.
- */
+/** IndexedDB has no text index, so cursor every message and stop early. */
 export async function searchMessages(query: string, limit = 30): Promise<MessageHit[]> {
   const needle = query.toLowerCase().trim()
   if (needle.length < 2) return []

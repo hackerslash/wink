@@ -1067,11 +1067,14 @@ export function DataPanel() {
 
   const onImport = async (file: File) => {
     try {
-      const json = JSON.parse(await file.text()) as Backup | unknown
+      const json: unknown = JSON.parse(await file.text())
       if ((json as Backup).app === "wink") {
-        const mode = window.confirm("Merge into current data? Cancel replaces everything.")
-          ? "merge"
-          : "replace"
+        // Cancel (and Escape) must land on the non-destructive option.
+        const mode = window.confirm(
+          "Replace everything with this backup?\n\nOK replaces, Cancel merges into your current data."
+        )
+          ? "replace"
+          : "merge"
         const res = await importBackup(json as Backup, mode)
         store.getState().toast("success", `Imported ${res.conversations} chats`)
       } else {

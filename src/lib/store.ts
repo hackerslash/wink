@@ -47,6 +47,8 @@ import type {
 } from "./types"
 import { vault } from "./vault"
 
+export type InspectorTab = "model" | "context" | "memory" | "sources" | "tools" | "info"
+
 export type SettingsTab =
   | "providers"
   | "models"
@@ -91,6 +93,7 @@ interface State {
   inspectorOpen: boolean
   paletteOpen: boolean
   settingsTab: SettingsTab | null
+  inspectorTab: InspectorTab
   modelPickerOpen: boolean
   search: string
   toasts: Toast[]
@@ -348,7 +351,7 @@ export const useStore = create<Store>((set, get) => {
       // rather than burning the whole iteration budget on it.
       const signature = JSON.stringify(pending.map((p) => [p.name, p.args]))
       if (signature === lastSignature) {
-        visible += visible ? "\n\n_Stopped: the model repeated the same tool call._" : ""
+        visible += (visible ? "\n\n" : "") + "_Stopped: the model repeated the same tool call._"
         break
       }
       lastSignature = signature
@@ -381,6 +384,7 @@ export const useStore = create<Store>((set, get) => {
             conversationId: conv.id,
             messageId: assistantMsg.id,
             signal,
+            citationOffset: citations.reduce((n, c) => Math.max(n, c.n), 0),
             collections: collections.length
               ? collections
               : get().collections.map((c) => c.id),
@@ -410,9 +414,11 @@ export const useStore = create<Store>((set, get) => {
           call.status = "done"
           call.result = result.output
           call.endedAt = Date.now()
+          // Tools number their own citations from citationOffset, and the text
+          // handed to the model uses those numbers — do not renumber here.
           for (const cite of result.citations ?? []) {
             const dupe = citations.find((c) => (c.url ?? c.chunkId) === (cite.url ?? cite.chunkId))
-            if (!dupe) citations.push({ ...cite, n: citations.length + 1 })
+            if (!dupe) citations.push(cite)
           }
           convo.push({
             role: "tool",
@@ -640,6 +646,7 @@ export const useStore = create<Store>((set, get) => {
     inspectorOpen: false,
     paletteOpen: false,
     settingsTab: null,
+    inspectorTab: "model",
     modelPickerOpen: false,
     search: "",
     toasts: [],
@@ -1183,10 +1190,7 @@ export const useStore = create<Store>((set, get) => {
   }
 })
 
-/**
- * The model the next message will use: the conversation's, else the global
- * default. Selects primitives so the snapshot stays referentially stable.
- */
+/** The conversation's model, else the global default. Primitives only, to stay referentially stable. */
 export const activeSelection = (s: State) => {
   const conv = s.conversations.find((c) => c.id === s.activeId)
   return {

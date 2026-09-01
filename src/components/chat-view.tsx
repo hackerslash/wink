@@ -29,7 +29,12 @@ export function ChatView() {
 
   const onCitation = React.useCallback(
     (cite: Citation) => {
-      if (!cite.url) store.getState().set("inspectorOpen", true)
+      if (cite.url) {
+        window.open(cite.url, "_blank", "noreferrer,noopener")
+        return
+      }
+      store.getState().set("inspectorTab", "sources")
+      store.getState().set("inspectorOpen", true)
     },
     [store]
   )

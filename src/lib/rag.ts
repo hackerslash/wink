@@ -221,17 +221,7 @@ export async function hitsToCitations(hits: SearchHit[], startAt = 1): Promise<C
   return out
 }
 
-export function citationsToPrompt(cites: Citation[]) {
-  return cites
-    .map((c) => `[${c.n}] ${c.title}${c.collection ? ` (${c.collection})` : ""}\n${c.snippet}`)
-    .join("\n\n")
-}
-
-/**
- * Embeds one probe string with the current settings and reports the real vector
- * width. Model ids don't tell you their dimensionality, and a wrong guess makes
- * retrieval silently useless — so ask the endpoint.
- */
+/** Model ids don't state their width, and guessing wrong breaks retrieval silently. */
 export async function probeEmbedding(settings: Settings): Promise<number> {
   const res = await call({ op: "embed", texts: ["dimension probe"], embed: await embedConfig(settings) })
   const dims = res.op === "vectors" ? res.vectors[0]?.length : 0
@@ -239,12 +229,7 @@ export async function probeEmbedding(settings: Settings): Promise<number> {
   return dims
 }
 
-/**
- * Re-embeds a collection's stored chunk text with the current embedding model.
- * Vectors from different models are not comparable, so switching models leaves
- * old collections stranded until they are rebuilt — the text is already local,
- * so no re-upload is needed.
- */
+/** Vectors from different models are not comparable, so a model switch strands old collections. */
 export async function reindexCollection(
   collectionId: ID,
   settings: Settings,

@@ -91,9 +91,9 @@ export async function pathToRequestMessages(
   limit = 0
 ): Promise<ChatMsg[]> {
   const usable = path.filter((m) => m.role !== "system" && (m.content.trim() || m.attachments?.length || m.toolCalls?.length))
-  const window = limit > 0 ? usable.slice(-limit) : usable
+  const recent = limit > 0 ? usable.slice(-limit) : usable
   const out: ChatMsg[] = []
-  for (const m of window) {
+  for (const m of recent) {
     if (m.role === "assistant") {
       const calls = (m.toolCalls ?? []).filter((t) => t.status === "done" || t.status === "error")
       out.push({

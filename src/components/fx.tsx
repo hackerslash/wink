@@ -1,40 +1,5 @@
-import * as React from "react"
-import { useStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 
-/** True when neither the browser nor the user has asked us to calm down. */
-export function useMotionOk() {
-  const effects = useStore((s) => s.settings.effects)
-  const [systemReduced, setSystemReduced] = React.useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  )
-  React.useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const onChange = () => setSystemReduced(mq.matches)
-    mq.addEventListener("change", onChange)
-    return () => mq.removeEventListener("change", onChange)
-  }, [])
-  return effects === "full" && !systemReduced
-}
-
-/** A solid surface with a hairline rule. No blur, no gradient. */
-export function Panel({
-  className,
-  thin,
-  children,
-  ...props
-}: React.ComponentProps<"div"> & { thin?: boolean }) {
-  return (
-    <div
-      className={cn(thin ? "panel-2" : "panel", "rounded-xl", className)}
-      {...props}
-    >
-      {children}
-    </div>
-  )
-}
-
-/** Skeleton shimmer used while the local stores load. */
 export function Shimmer({ className }: { className?: string }) {
   return (
     <div

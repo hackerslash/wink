@@ -124,13 +124,6 @@ export async function retrieveMemories(
   return picked
 }
 
-export function memoriesToPrompt(items: MemoryItem[]) {
-  if (!items.length) return ""
-  return `What you remember about the user (may be outdated; prefer what they say now):\n${items
-    .map((m) => `- ${m.text}`)
-    .join("\n")}`
-}
-
 export async function addManualMemory(text: string, settings: Settings): Promise<MemoryItem> {
   const [vec] = await embedTexts([text], settings)
   const item: MemoryItem = {

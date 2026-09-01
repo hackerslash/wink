@@ -18,12 +18,12 @@ import { Switch } from "@/components/ui/switch"
 import { fmtCost, fmtTokens } from "@/lib/defaults"
 import { exportConversation } from "@/lib/exporting"
 import { pathToHead } from "@/lib/prompt"
-import { activeSelection, useStore } from "@/lib/store"
+import { activeSelection, useStore, type InspectorTab } from "@/lib/store"
 import { tools } from "@/lib/tools"
 import { uid } from "@/lib/db"
 import type { Citation } from "@/lib/types"
 import { cn } from "@/lib/utils"
-type Tab = "model" | "context" | "memory" | "sources" | "tools" | "info"
+type Tab = InspectorTab
 const TABS: { id: Tab; icon: typeof SlidersIcon; label: string }[] = [
   { id: "model", icon: SlidersIcon, label: "Model" },
   { id: "context", icon: BookIcon, label: "Context" },
@@ -35,7 +35,8 @@ const TABS: { id: Tab; icon: typeof SlidersIcon; label: string }[] = [
 
 export function Inspector() {
   const open = useStore((s) => s.inspectorOpen)
-  const [tab, setTab] = React.useState<Tab>("model")
+  const tab = useStore((s) => s.inspectorTab)
+  const setTab = (t: Tab) => useStore.getState().set("inspectorTab", t)
 
   return (
     <aside

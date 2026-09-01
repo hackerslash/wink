@@ -12,6 +12,8 @@ export interface ToolContext {
   /** Resolves once the user allows (or denies) this call. */
   requestPermission: (tool: ToolDef, args: unknown) => Promise<boolean>
   collections: ID[]
+  /** Highest citation number already used this turn; number new ones above it. */
+  citationOffset: number
 }
 
 export interface ToolResult {
@@ -240,14 +242,14 @@ export const BUILTIN_TOOLS: ToolDef[] = [
         ctx.signal
       )
       const citations: Citation[] = results.map((r, i) => ({
-        n: i + 1,
+        n: ctx.citationOffset + i + 1,
         title: r.title,
         url: r.url,
         snippet: r.snippet.slice(0, 300),
       }))
       return {
         output: results
-          .map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.snippet.slice(0, 500)}`)
+          .map((r, i) => `[${citations[i].n}] ${r.title}\n${r.url}\n${r.snippet.slice(0, 500)}`)
           .join("\n\n"),
         citations,
         data: results,
@@ -272,7 +274,9 @@ export const BUILTIN_TOOLS: ToolDef[] = [
       const text = await fetchPage(url, ctx.settings, ctx.signal)
       return {
         output: text.slice(0, 30_000),
-        citations: [{ n: 1, title: text.match(/Title:\s*(.+)/)?.[1] ?? url, url }],
+        citations: [
+          { n: ctx.citationOffset + 1, title: text.match(/Title:\s*(.+)/)?.[1] ?? url, url },
+        ],
       }
     },
   },
@@ -300,7 +304,7 @@ export const BUILTIN_TOOLS: ToolDef[] = [
         Math.min(12, num(args.k, 6))
       )
       if (!hits.length) return { output: "No matching passages in the local collections." }
-      const citations = await hitsToCitations(hits)
+      const citations = await hitsToCitations(hits, ctx.citationOffset + 1)
       return {
         output: citations
           .map((c) => `[${c.n}] ${c.title}\n${c.snippet}`)

@@ -69,11 +69,7 @@ function parseJson<T>(raw: string, fallback: T): T {
   }
 }
 
-/**
- * Plan → search → read → reflect → synthesize. Every phase pushes a step so the
- * UI can show exactly what the agent is doing, and all evidence keeps its
- * citation number from first sighting to final report.
- */
+/** Plan → search → read → reflect → synthesize; evidence keeps its citation number throughout. */
 export async function runResearch(opts: ResearchOptions): Promise<ResearchRun> {
   const { question, cfg, model, settings, signal, onUpdate } = opts
   const limits = DEPTH[opts.depth]
