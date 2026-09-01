@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wink.hackerslash.dev/sitemap.xml

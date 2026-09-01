@@ -52,9 +52,9 @@ export function Landing() {
         <span className="text-muted-foreground">Keep your data.</span>
       </h1>
       <p className="mt-4 max-w-[54ch] text-[17px] leading-[1.6] tracking-[-0.011em] text-muted-foreground">
-        A multi-model workspace that runs in your browser. Conversations,
-        memories and documents stay in this device's storage — you choose which
-        model ever sees them.
+        A local-first, multi-model AI chat that runs in your browser.
+        Conversations, memories and documents stay in this device's storage —
+        you choose which model ever sees them.
       </p>
     </div>
   )

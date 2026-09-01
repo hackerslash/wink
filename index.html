@@ -2,17 +2,105 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Wink · your models, your data</title>
-    <meta name="description" content="A local-first, multi-model AI workspace that runs entirely in your browser." />
+
+    <title>Wink · Local-first BYOK AI chat in your browser</title>
+    <meta
+      name="description"
+      content="A local-first AI chat app that runs entirely in your browser. Bring your own API key — OpenAI, Anthropic, Gemini, OpenRouter or Ollama. No account, no server."
+    />
+    <link rel="canonical" href="https://wink.hackerslash.dev/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Wink" />
+    <meta name="application-name" content="Wink" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Wink" />
+    <meta property="og:url" content="https://wink.hackerslash.dev/" />
+    <meta property="og:title" content="Wink · Local-first BYOK AI chat in your browser" />
+    <meta
+      property="og:description"
+      content="Bring your own API key, keep your data. A multi-model AI workspace with memory, documents, tools and research mode — running entirely on your device."
+    />
+    <meta property="og:image" content="https://wink.hackerslash.dev/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Wink — bring your models, keep your data." />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Wink · Local-first BYOK AI chat in your browser" />
+    <meta
+      name="twitter:description"
+      content="Bring your own API key, keep your data. A multi-model AI workspace with memory, documents, tools and research mode — running entirely on your device."
+    />
+    <meta name="twitter:image" content="https://wink.hackerslash.dev/og.png" />
+
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f1f1f3" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111113" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7.5' fill='%23cd4a2a'/%3E%3Cpath d='M8 11.5l3 9.5 5-12 5 12 3-9.5' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://wink.hackerslash.dev/#website",
+            "url": "https://wink.hackerslash.dev/",
+            "name": "Wink",
+            "description": "Local-first, bring-your-own-key AI chat that runs in your browser.",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://wink.hackerslash.dev/#app",
+            "name": "Wink",
+            "url": "https://wink.hackerslash.dev/",
+            "applicationCategory": "BusinessApplication",
+            "applicationSubCategory": "AI chat client",
+            "operatingSystem": "Any (web browser)",
+            "browserRequirements": "Requires JavaScript and a modern browser with IndexedDB",
+            "description": "A local-first, multi-model AI workspace that runs entirely in the browser. Bring your own API key for OpenAI, Anthropic, Gemini, OpenRouter, Groq, DeepSeek, Mistral or xAI, or run local models with Ollama and LM Studio. Chats, memories and documents stay in the device's storage.",
+            "featureList": [
+              "Bring your own API key (BYOK)",
+              "Compare answers from several models side by side",
+              "Local-first storage in IndexedDB — no account, no server",
+              "Chat with your own PDFs, Markdown and code with citations",
+              "Long-term memory extracted from your chats",
+              "Web search, page reading, calculator and MCP tools",
+              "Research mode with cited, step-by-step synthesis",
+              "Works offline with Ollama and LM Studio"
+            ],
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "isAccessibleForFree": true
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Wink — a local-first, bring-your-own-key AI chat app for your browser</h1>
+      <p>
+        Wink is a private AI chat client that runs entirely in your browser. Paste an API key for
+        OpenAI, Anthropic, Gemini, OpenRouter, Groq, DeepSeek, Mistral or xAI — or point it at
+        Ollama or LM Studio on localhost and stay fully offline. There is no account, no server and
+        no telemetry: conversations, memories and documents live in this device's storage.
+      </p>
+      <p>
+        Ask several models the same question and compare the answers side by side, chat with your
+        own PDFs and code with citations, let it remember how you work, and run web search, page
+        reading and MCP tools with a permission prompt before every call.
+      </p>
+      <p>Wink needs JavaScript enabled to run.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
