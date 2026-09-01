@@ -75,7 +75,6 @@
 @utility glass {
   background: var(--mat-chrome);
   backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
-  -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
 }
 
 /* Bar glass, over the white sheet: the header. Tinted toward the field just
@@ -84,14 +83,12 @@
 @utility glass-bar {
   background: var(--mat-bar);
   backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
-  -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
 }
 
 /* Overlay glass: dialogs, menus, the palette. Thicker, because text sits on it. */
 @utility glass-overlay {
   background: var(--mat-overlay);
   backdrop-filter: blur(var(--mat-blur-heavy)) saturate(var(--mat-sat));
-  -webkit-backdrop-filter: blur(var(--mat-blur-heavy)) saturate(var(--mat-sat));
   box-shadow:
     var(--shadow-3),
     inset 0 1px 0 var(--edge-top);
