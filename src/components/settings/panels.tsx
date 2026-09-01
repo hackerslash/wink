@@ -123,7 +123,7 @@ const SEARCH_KINDS: readonly {
   {
     id: "jina",
     label: "Jina",
-    hint: "Usable without a key; a key lifts the rate limit.",
+    hint: "Needs a key. The Jina reader under Page reading still works without one.",
     needsKey: true,
     keyPage: "https://jina.ai/api-dashboard/",
   },

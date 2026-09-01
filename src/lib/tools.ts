@@ -129,7 +129,12 @@ export async function webSearch(
     },
     signal,
   })
-  if (!res.ok) throw new Error(`Jina search ${res.status}`)
+  if (!res.ok)
+    throw new Error(
+      res.status === 401
+        ? "Jina search needs an API key. Add one under Web search in Settings."
+        : `Jina search ${res.status}`,
+    )
   const text = await res.text()
   const out: WebResult[] = []
   for (const block of text.split(/\n(?=\[\d+\]|\d+\.\s)/)) {
