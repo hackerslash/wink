@@ -39,7 +39,7 @@ export function KnowledgePanel() {
             : `${settings.embedding.model} (remote)`}
         </strong>
         {settings.embedding.providerId === "local" &&
-          " — lexical only. Point it at a real embedding model in Tools → Embeddings for semantic recall."}
+          ", which is lexical only. Point it at a real embedding model in Tools → Embeddings for semantic recall."}
       </p>
 
       <div className="flex flex-wrap gap-1.5">

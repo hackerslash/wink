@@ -27,8 +27,8 @@ export function ProvidersPanel() {
     <div className="space-y-6">
       <p className="rounded-lg border border-border bg-[var(--paper-3)] p-3 text-[13px] leading-relaxed text-muted-foreground">
         Keys are encrypted with a non-extractable device key and stored only in this browser.
-        Requests go straight from your browser to the provider — Wink has no server. Local endpoints
-        (Ollama, LM Studio, llama.cpp) need CORS enabled: for Ollama, start it with{" "}
+        Requests go straight from your browser to the provider, since Wink has no server. Local
+        endpoints (Ollama, LM Studio, llama.cpp) need CORS enabled: for Ollama, start it with{" "}
         <code className="rounded bg-[var(--paper-2)] px-1 font-mono text-[13px]">
           OLLAMA_ORIGINS=*
         </code>
@@ -374,7 +374,7 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
           ))}
           {provider.models.length === 0 && (
             <p className="px-1.5 py-2 text-[13px] text-muted-foreground">
-              No models loaded yet — hit refresh.
+              No models loaded yet. Hit refresh.
             </p>
           )}
         </div>

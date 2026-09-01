@@ -116,7 +116,7 @@ const SEARCH_KINDS: readonly {
   {
     id: "firecrawl",
     label: "Firecrawl",
-    hint: "Search and clean page scraping from one key — pair it with the Firecrawl reader below.",
+    hint: "Search and clean page scraping from one key. Pair it with the Firecrawl reader below.",
     needsKey: true,
     keyPage: "https://www.firecrawl.dev/app/api-keys",
   },
@@ -428,7 +428,7 @@ export function ToolsPanel() {
           />
         ) : (
           <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Uses Firecrawl's scrape endpoint with the key above — set Firecrawl as your search
+            Uses Firecrawl's scrape endpoint with the key above. Set Firecrawl as your search
             provider, or paste its key there.
           </p>
         )}
@@ -519,7 +519,7 @@ export function ToolsPanel() {
             </span>
             <p className="text-[13px] leading-relaxed text-muted-foreground">
               Vectors from different models are not comparable. Re-embed to use them with the active
-              model — the text is already stored locally, nothing is re-uploaded.
+              model. The text is already stored locally, so nothing is re-uploaded.
             </p>
             {stale.map((c) => (
               <div key={c.id} className="flex items-center gap-2 text-[13px]">
@@ -1249,7 +1249,7 @@ export function PrivacyPanel() {
     await store.getState().saveSettings({ vault: { enabled: true, salt, check } })
     setPass("")
     setPass2("")
-    store.getState().toast("success", "Vault enabled — keys now need your passphrase")
+    store.getState().toast("success", "Vault enabled: keys now need your passphrase")
   }
 
   return (
@@ -1322,7 +1322,7 @@ export function PrivacyPanel() {
               onClick={async () => {
                 await vault.disable()
                 await store.getState().saveSettings({ vault: { enabled: false } })
-                store.getState().toast("info", "Vault disabled — keys use the device key again")
+                store.getState().toast("info", "Vault disabled: keys use the device key again")
               }}
               className="rounded-md border border-destructive/40 px-3 py-1.5 text-[13px] font-semibold text-destructive hover:bg-destructive/8"
             >

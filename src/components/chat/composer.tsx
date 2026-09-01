@@ -121,7 +121,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
             onPaste={onPaste}
             placeholder={
               mode === "research"
-                ? "Ask a research question — the agent will plan, search and cite…"
+                ? "Ask a research question. The agent will plan, search and cite…"
                 : "Message your model…"
             }
             className="field-sizing-content max-h-[42vh] min-h-11 w-full resize-none bg-transparent px-3.5 py-2.5 text-[17px] leading-relaxed tracking-[-0.011em] outline-none placeholder:text-muted-foreground/70"

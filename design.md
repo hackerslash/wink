@@ -1,18 +1,18 @@
-# Design — Wink
+# Design: Wink
 
 A locked design system for this app. Every screen reads this file before it
 changes. Extend or amend it; do not re-pick per screen.
 
 ## Genre
 
-system-native — a workspace that behaves like part of the operating system.
+system-native: a workspace that behaves like part of the operating system.
 Function carries the screen; material carries the hierarchy.
 
 ## Direction
 
 **Two grounds, never one.** A cool grey *field* carries the window chrome; a
 near-white *sheet* carries everything you read. Chrome is translucent and blurs
-what passes behind it. Content is opaque — text never sits on a blur.
+what passes behind it. Content is opaque; text never sits on a blur.
 
 The identity comes from that separation, from a 1 px specular edge on every
 pane, and from hairlines instead of boxes. No gradients anywhere, no coloured
@@ -28,9 +28,9 @@ chrome, plus five semantic hues that each mean something.
 - Header and composer are **glass bars** pinned inside the sheet. The
   transcript scrolls behind them and is visibly frosted by them. This is the
   system's signature moment; nothing else may imitate it.
-- Empty state / landing: **Stat-Led** — one declarative line, a short lede,
+- Empty state / landing: **Stat-Led**. One declarative line, a short lede,
   entry actions, real counts from local storage. No hero art.
-- Settings: **Long Document** — a left rail of sections, one column of rows,
+- Settings: **Long Document**. A left rail of sections, one column of rows,
   on an overlay pane.
 
 ## Theme
@@ -66,11 +66,11 @@ Three glass materials. Each is a tint plus a blur plus a specular top edge.
 
 | utility | where | tint | blur |
 | --- | --- | --- | --- |
-| `glass` | sidebar, inspector — over the field | white 62 % / dark white 4.5 % | 40 px |
-| `glass-bar` | header, composer — over the sheet | field 68 % / dark field 72 % | 40 px |
+| `glass` | sidebar, inspector (over the field) | white 62 % / dark white 4.5 % | 40 px |
+| `glass-bar` | header, composer (over the sheet) | field 68 % / dark field 72 % | 40 px |
 | `glass-overlay` | dialogs, menus, palette, toasts | white 82 % / dark grey 72 % | 48 px |
 
-All three add `saturate(180%)` — without it a frosted surface goes grey and
+All three add `saturate(180%)`; without it a frosted surface goes grey and
 dead. All three fall back to opaque `--shell` where `backdrop-filter` is
 unsupported. Never nest one glass surface inside another.
 
@@ -83,7 +83,7 @@ Apple's system stack, single family, at deliberate extremes.
 
 - Stack: `-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display"`,
   falling back to bundled Figtree Variable off Apple platforms.
-- `font-optical-sizing: auto` — SF picks Text below 20 px and Display above.
+- `font-optical-sizing: auto`, so SF picks Text below 20 px and Display above.
 - Tracking is paired to size, not set once: display `-0.026em`, title
   `-0.018em`, body `-0.008em`. Tight display tracking on caption text is what
   turns small UI into mush; nothing below 14 px goes tighter than the body.
@@ -94,7 +94,7 @@ Apple's system stack, single family, at deliberate extremes.
 - Grayscale antialiasing (`-webkit-font-smoothing: antialiased`) is opted into
   only above 2dppx. Forcing it on a 1x panel discards subpixel rendering and
   SF's thin stems go fuzzy. `text-rendering` stays at the default.
-- Mono (outlier, three roles only — model ids, code, numeric readouts):
+- Mono (outlier, three roles only: model ids, code, numeric readouts):
   `ui-monospace, "SF Mono"`, always `tabular-nums`, tracking 0.
 - Measure: 68ch on prose.
 
@@ -120,10 +120,10 @@ blur, in three steps (`--shadow-1/2/3`); a zero-offset halo is never a shadow.
 
 - Easings: `--ease-out cubic-bezier(0.32, 0.72, 0, 1)` (the system curve),
   `--ease-in-out`, and `--ease-arrive cubic-bezier(0.16, 1, 0.3, 1)`, a sharper
-  deceleration for things that arrive rather than change. No overshoot — the
+  deceleration for things that arrive rather than change. No overshoot: the
   system never bounces.
 - Durations: 140 ms (state), 240 ms (layer), 380 ms (panel width).
-- Layers arrive **out of focus and resolve** — `layer-in` animates blur,
+- Layers arrive **out of focus and resolve**: `layer-in` animates blur,
   opacity and scale together. This is the one authored moment; nothing else
   animates on entry.
 - Every control uses `press` (colour + shadow + transform) and, where it is a

@@ -53,7 +53,7 @@ export function Landing() {
       </h1>
       <p className="mt-[clamp(0.75rem,1.8vh,1rem)] max-w-[64ch] text-[17px] leading-[1.6] tracking-[-0.011em] text-muted-foreground">
         A local-first, multi-model AI chat that runs in your browser.
-        Conversations, memories and documents stay in this device's storage —
+        Conversations, memories and documents stay in this device's storage, and
         you choose which model ever sees them.
       </p>
     </div>
@@ -79,8 +79,8 @@ export function Landing() {
               </h2>
             </div>
             <p className="mt-3 max-w-[52ch] text-[15px] leading-[1.6] text-muted-foreground">
-              Paste an API key for OpenAI, Anthropic or Gemini — or point Wink
-              at Ollama and stay entirely offline.
+              Paste an API key for OpenAI, Anthropic or Gemini, or point Wink at
+              Ollama and stay entirely offline.
             </p>
             <button
               type="button"

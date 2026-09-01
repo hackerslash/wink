@@ -340,7 +340,7 @@ export function CommandPalette() {
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search chats, messages, knowledge — or run a command"
+              placeholder="Search chats, messages and knowledge, or run a command"
               className="w-full bg-transparent text-[16px] tracking-[-0.011em] outline-none placeholder:text-muted-foreground/70"
             />
             <kbd>esc</kbd>
