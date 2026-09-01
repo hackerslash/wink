@@ -29,7 +29,7 @@ import {
   importChatGptExport,
   type Backup,
 } from "@/lib/exporting"
-import { newMcpServer, type McpServer } from "@/lib/mcp"
+import { listMcpTools, newMcpServer, type McpServer, type McpTool } from "@/lib/mcp"
 import { canEmbed } from "@/lib/providers"
 import { probeEmbedding, reindexCollection } from "@/lib/rag"
 import { addManualMemory } from "@/lib/memory"
@@ -585,6 +585,29 @@ export function ToolsPanel() {
 function McpRow({ server }: { server: McpServer }) {
   const store = useStore
   const [draft, setDraft] = React.useState(server)
+  const [connecting, setConnecting] = React.useState(false)
+  const [found, setFound] = React.useState<{ url: string; tools: McpTool[] } | null>(null)
+
+  /** Listing tools is the handshake, so it doubles as a connection test. */
+  const saveAndConnect = async () => {
+    if (!draft.url.trim()) {
+      store.getState().toast("error", "Enter the server URL first")
+      return
+    }
+    setConnecting(true)
+    try {
+      const tools = await listMcpTools(draft)
+      setFound({ url: draft.url, tools })
+      await store.getState().saveMcpServer(draft)
+      store.getState().toast("success", `${draft.name || draft.url}: ${tools.length} tools`)
+    } catch (err) {
+      setFound(null)
+      store.getState().toast("error", `${draft.name || draft.url}: ${(err as Error).message}`)
+    } finally {
+      setConnecting(false)
+    }
+  }
+
   return (
     <div className="space-y-1.5 rounded-md border border-border bg-[var(--paper-2)] p-2.5">
       <div className="flex gap-1.5">
@@ -608,15 +631,16 @@ function McpRow({ server }: { server: McpServer }) {
       />
       <div className="flex items-center gap-2">
         <Switch checked={draft.enabled} onCheckedChange={(v) => setDraft({ ...draft, enabled: v })} />
-        <span className="text-[12.5px] text-muted-foreground">enabled</span>
+        <span className="text-[13px] text-muted-foreground">enabled</span>
         <span className="flex-1" />
         <button
           type="button"
-          onClick={() => void store.getState().saveMcpServer(draft)}
-          className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[12.5px] font-semibold hover:bg-[var(--paper-3)]"
+          disabled={connecting}
+          onClick={() => void saveAndConnect()}
+          className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[13px] font-semibold hover:bg-[var(--paper-3)] disabled:opacity-60"
         >
           <HugeiconsIcon icon={PlugIcon} className="size-3" strokeWidth={2} />
-          Save and connect
+          {connecting ? "Connecting…" : "Save and connect"}
         </button>
         <button
           type="button"
@@ -627,6 +651,25 @@ function McpRow({ server }: { server: McpServer }) {
           <HugeiconsIcon icon={DeleteIcon} className="size-3.5" strokeWidth={2} />
         </button>
       </div>
+
+      {found?.url === draft.url && (
+        <div className="space-y-1 pt-0.5">
+          <span className="block text-[12px] text-muted-foreground">
+            {found.tools.length} tool{found.tools.length === 1 ? "" : "s"}
+            {found.tools.length ? ` · exposed as ${draft.slug}_*` : ""}
+          </span>
+          {found.tools.map((t) => (
+            <div key={t.name} className="rounded-md bg-[var(--paper-3)]/60 px-2 py-1">
+              <span className="block font-mono text-[12px] font-medium">{t.name}</span>
+              {t.description && (
+                <span className="block text-[12px] leading-relaxed text-muted-foreground">
+                  {t.description}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

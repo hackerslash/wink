@@ -1182,6 +1182,7 @@ export const useStore = create<Store>((set, get) => {
       const list = get().mcpServers.filter((s) => s.id !== id)
       set({ mcpServers: list })
       await kv.set("mcpServers", list)
+      await tools.loadMcp(list)
     },
 
     resolvePermission(allow, remember) {

@@ -403,7 +403,9 @@ export class ToolRegistry {
       }))
   }
 
+  /** Re-registers from scratch so removed, disabled and renamed servers drop out. */
   async loadMcp(servers: McpServer[]) {
+    for (const def of this.list()) if (def.icon === "plug") this.unregister(def.name)
     for (const server of servers.filter((s) => s.enabled)) {
       try {
         for (const tool of await listMcpTools(server)) {
