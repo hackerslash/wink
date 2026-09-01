@@ -38,11 +38,14 @@ export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2", className)}>
       <span
-        className="size-[13px] rounded-[4px]"
-        style={{ background: "var(--accent-solid)" }}
+        className="size-[13px] rounded-[4.5px]"
+        style={{
+          background: "var(--accent-solid)",
+          boxShadow: "inset 0 1px 0 oklch(100% 0 0 / 0.28), var(--shadow-1)",
+        }}
         aria-hidden
       />
-      <span className="text-[17px] font-semibold tracking-[-0.03em]">wink</span>
+      <span className="text-[17px] font-semibold tracking-[-0.028em]">wink</span>
     </span>
   )
 }

@@ -49,7 +49,7 @@ export function KnowledgePanel() {
             type="button"
             onClick={() => setActive(c.id)}
             className={cn(
-              "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[13.5px] font-medium transition-colors",
+              "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[14px] font-medium transition-colors",
               active === c.id
                 ? "border-border bg-[var(--paper-3)]"
                 : "border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
@@ -57,7 +57,7 @@ export function KnowledgePanel() {
           >
             <span>{c.emoji}</span>
             {c.name}
-            <span className="font-mono text-[11.5px] text-muted-foreground">{c.docCount}</span>
+            <span className="font-mono text-[12px] text-muted-foreground">{c.docCount}</span>
           </button>
         ))}
         <button
@@ -69,7 +69,7 @@ export function KnowledgePanel() {
             await store.getState().reloadCollections()
             setActive(col.id)
           }}
-          className="flex items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-[13.5px] font-medium text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-1 rounded-md border border-dashed border-border px-3 py-1.5 text-[14px] font-medium text-muted-foreground hover:text-foreground"
         >
           <HugeiconsIcon icon={AddIcon} className="size-3.5" strokeWidth={2.5} />
           New collection
@@ -79,7 +79,7 @@ export function KnowledgePanel() {
       {collection ? (
         <CollectionView collection={collection} />
       ) : (
-        <p className="py-8 text-center text-[13.5px] text-muted-foreground">
+        <p className="py-8 text-center text-[14px] text-muted-foreground">
           Create a collection to start building local knowledge.
         </p>
       )}
@@ -138,7 +138,7 @@ function CollectionView({ collection }: { collection: Collection }) {
         <span className="text-[14px] font-semibold">
           Drop PDFs, Markdown, text or code here
         </span>
-        <span className="text-[12.5px] text-muted-foreground">
+        <span className="text-[13px] text-muted-foreground">
           Parsed and embedded locally · never uploaded unless you ask a cloud model
         </span>
         <input
@@ -184,7 +184,7 @@ function CollectionView({ collection }: { collection: Collection }) {
             />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] font-medium">{doc.name}</div>
-              <div className="font-mono text-[11.5px] text-muted-foreground">
+              <div className="font-mono text-[12px] text-muted-foreground">
                 {fmtBytes(doc.size)} · {doc.chunkCount} chunks · {doc.status}
                 {doc.error && <span className="text-destructive"> — {doc.error}</span>}
               </div>

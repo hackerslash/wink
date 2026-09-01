@@ -50,7 +50,7 @@ export function Section({
 }) {
   return (
     <section className="mb-7">
-      <h3 className="mb-1 text-[12.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+      <h3 className="mb-1 text-[13px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
         {title}
       </h3>
       {hint && <p className="mb-2.5 text-[13px] leading-relaxed text-muted-foreground">{hint}</p>}
@@ -72,7 +72,7 @@ function Row({
     <div className="flex items-center justify-between gap-3 py-1.5">
       <span className="min-w-0">
         <span className="block text-[14px] font-medium">{label}</span>
-        {hint && <span className="block text-[12.5px] text-muted-foreground">{hint}</span>}
+        {hint && <span className="block text-[13px] text-muted-foreground">{hint}</span>}
       </span>
       <span className="shrink-0">{children}</span>
     </div>
@@ -149,7 +149,7 @@ function KeyLink({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      className="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--accent-solid)] hover:underline"
+      className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--accent-solid)] hover:underline"
     >
       <HugeiconsIcon icon={KeyIcon} className="size-3" strokeWidth={2} />
       Get a {label} key ↗
@@ -213,7 +213,7 @@ function Choice<T extends string>({
             aria-pressed={on}
             onClick={() => onChange(o.id)}
             className={cn(
-              "relative rounded-md border px-3 py-2 text-[13.5px] transition-colors",
+              "relative rounded-md border px-3 py-2 text-[14px] transition-colors",
               on
                 ? "border-[var(--accent-solid)] bg-[var(--accent-soft)] font-semibold text-[var(--accent-solid)]"
                 : "border-border bg-[var(--paper-2)] font-medium text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
@@ -330,7 +330,7 @@ export function ToolsPanel() {
                 aria-pressed={on}
                 onClick={() => save({ search: { ...settings.search, kind: k.id } })}
                 className={cn(
-                  "relative rounded-md border px-3 py-2 text-left text-[13.5px] transition-colors",
+                  "relative rounded-md border px-3 py-2 text-left text-[14px] transition-colors",
                   on
                     ? "border-[var(--accent-solid)] bg-[var(--accent-soft)] font-semibold text-[var(--accent-solid)]"
                     : "border-border bg-[var(--paper-2)] font-medium text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
@@ -461,8 +461,8 @@ export function ToolsPanel() {
           )}
         >
           <span className="min-w-0 flex-1">
-            <span className="block text-[13.5px] font-medium">Local hashing embedder</span>
-            <span className="block font-mono text-[11.5px] text-muted-foreground">
+            <span className="block text-[14px] font-medium">Local hashing embedder</span>
+            <span className="block font-mono text-[12px] text-muted-foreground">
               384d · offline · lexical, not semantic
             </span>
           </span>
@@ -517,12 +517,12 @@ export function ToolsPanel() {
             <span className="block text-[13px] font-semibold text-warn">
               {stale.length} collection{stale.length > 1 ? "s" : ""} built with another model
             </span>
-            <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
               Vectors from different models are not comparable. Re-embed to use them with the active
               model — the text is already stored locally, nothing is re-uploaded.
             </p>
             {stale.map((c) => (
-              <div key={c.id} className="flex items-center gap-2 text-[12.5px]">
+              <div key={c.id} className="flex items-center gap-2 text-[13px]">
                 <span className="min-w-0 flex-1 truncate">
                   {c.emoji} {c.name}{" "}
                   <span className="font-mono text-muted-foreground">
@@ -792,7 +792,7 @@ export function MemoryPanel() {
                 <button
                   type="button"
                   onClick={() => void store.getState().patchMemory(m.id, { disabled: !m.disabled })}
-                  className="text-[11.5px] font-semibold text-muted-foreground hover:text-foreground"
+                  className="text-[12px] font-semibold text-muted-foreground hover:text-foreground"
                 >
                   {m.disabled ? "enable" : "forget"}
                 </button>
@@ -820,7 +820,7 @@ export function MemoryPanel() {
               if (!window.confirm(`Delete all ${memories.length} memories?`)) return
               for (const m of memories) await store.getState().deleteMemory(m.id)
             }}
-            className="text-[12.5px] font-medium text-destructive hover:underline"
+            className="text-[13px] font-medium text-destructive hover:underline"
           >
             forget everything
           </button>
@@ -852,15 +852,15 @@ export function AssistantsPanel() {
           >
             <span className="text-[16px]">{a.emoji}</span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[13.5px] font-semibold">{a.name}</span>
-              <span className="block truncate text-[12.5px] text-muted-foreground">
+              <span className="block truncate text-[14px] font-semibold">{a.name}</span>
+              <span className="block truncate text-[13px] text-muted-foreground">
                 {a.description}
               </span>
             </span>
             <button
               type="button"
               onClick={() => setEditing(a)}
-              className="rounded-md border border-border px-2.5 py-1 text-[12.5px] font-medium hover:bg-[var(--paper-3)]"
+              className="rounded-md border border-border px-2.5 py-1 text-[13px] font-medium hover:bg-[var(--paper-3)]"
             >
               Edit
             </button>
@@ -920,7 +920,7 @@ export function AssistantsPanel() {
             value={editing.systemPrompt}
             onChange={(e) => setEditing({ ...editing, systemPrompt: e.target.value })}
             placeholder="System prompt"
-            className="field-sizing-content max-h-64 min-h-28 w-full resize-none rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2 text-[13.5px] leading-relaxed outline-none"
+            className="field-sizing-content max-h-64 min-h-28 w-full resize-none rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2 text-[14px] leading-relaxed outline-none"
           />
           <div className="flex flex-wrap gap-1.5">
             {collections.map((c) => {
@@ -938,7 +938,7 @@ export function AssistantsPanel() {
                     })
                   }
                   className={cn(
-                    "rounded-md border border-border px-2.5 py-1 text-[12.5px] font-medium",
+                    "rounded-md border border-border px-2.5 py-1 text-[13px] font-medium",
                     on ? "bg-[var(--paper-3)]" : "bg-[var(--paper-2)]"
                   )}
                 >
@@ -957,7 +957,7 @@ export function AssistantsPanel() {
                 model: model || undefined,
               })
             }}
-            className="w-full rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 text-[13.5px] outline-none"
+            className="w-full rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 text-[14px] outline-none"
           >
             <option value="">Use the conversation's model</option>
             {providers.flatMap((p) =>
@@ -974,7 +974,7 @@ export function AssistantsPanel() {
             <button
               type="button"
               onClick={() => setEditing(null)}
-              className="rounded-full px-3 py-1.5 text-[13.5px] font-medium text-muted-foreground hover:bg-[var(--paper-3)]"
+              className="rounded-full px-3 py-1.5 text-[14px] font-medium text-muted-foreground hover:bg-[var(--paper-3)]"
             >
               Cancel
             </button>
@@ -985,7 +985,7 @@ export function AssistantsPanel() {
                 void store.getState().saveAssistant(editing)
                 setEditing(null)
               }}
-              className="ink-fill rounded-full px-4 py-1.5 text-[13.5px] font-semibold"
+              className="ink-fill rounded-full px-4 py-1.5 text-[14px] font-semibold"
             >
               Save
             </button>
@@ -1134,26 +1134,26 @@ export function DataPanel() {
     <div>
       <Section title="Storage" hint="Everything lives in this browser's IndexedDB.">
         <Row label="Used">
-          <span className="font-mono text-[13.5px]">{fmtBytes(used)}</span>
+          <span className="font-mono text-[14px]">{fmtBytes(used)}</span>
         </Row>
         <Row label="Attachments">
-          <span className="font-mono text-[13.5px]">{fmtBytes(attachmentBytes)}</span>
+          <span className="font-mono text-[14px]">{fmtBytes(attachmentBytes)}</span>
         </Row>
         <Row label="Conversations">
-          <span className="font-mono text-[13.5px]">{conversations.length}</span>
+          <span className="font-mono text-[14px]">{conversations.length}</span>
         </Row>
         <Row label="Memories">
-          <span className="font-mono text-[13.5px]">{memories.length}</span>
+          <span className="font-mono text-[14px]">{memories.length}</span>
         </Row>
         <Row label="Knowledge chunks">
-          <span className="font-mono text-[13.5px]">
+          <span className="font-mono text-[14px]">
             {collections.reduce((n, c) => n + c.chunkCount, 0)}
           </span>
         </Row>
         <button
           type="button"
           onClick={() => void refresh()}
-          className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[12.5px] font-medium hover:bg-[var(--paper-3)]"
+          className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[13px] font-medium hover:bg-[var(--paper-3)]"
         >
           <HugeiconsIcon icon={RefreshIcon} className="size-3" strokeWidth={2} />
           Recalculate
@@ -1289,7 +1289,7 @@ export function PrivacyPanel() {
             <button
               type="button"
               onClick={() => store.getState().openSettings("providers")}
-              className="rounded-md border border-border px-2.5 py-1 text-[12.5px] font-medium hover:bg-[var(--paper-3)]"
+              className="rounded-md border border-border px-2.5 py-1 text-[13px] font-medium hover:bg-[var(--paper-3)]"
             >
               Change
             </button>
@@ -1361,7 +1361,7 @@ export function PrivacyPanel() {
             await kv.del("mcpServers")
             store.getState().toast("info", "MCP server list cleared")
           }}
-          className="rounded-md border border-border px-3 py-1.5 text-[12.5px] font-medium hover:bg-[var(--paper-3)]"
+          className="rounded-md border border-border px-3 py-1.5 text-[13px] font-medium hover:bg-[var(--paper-3)]"
         >
           Clear MCP servers
         </button>

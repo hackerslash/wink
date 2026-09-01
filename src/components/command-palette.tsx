@@ -247,7 +247,7 @@ export function CommandPalette() {
             strokeWidth={2}
           />
           <span className="min-w-0 flex-1 truncate">{c.title}</span>
-          <span className="shrink-0 font-mono text-[11.5px] text-muted-foreground">
+          <span className="shrink-0 font-mono text-[12px] text-muted-foreground">
             {new Date(c.updatedAt).toLocaleDateString()}
           </span>
         </>
@@ -268,7 +268,7 @@ export function CommandPalette() {
             strokeWidth={2}
           />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13.5px] font-medium">
+            <span className="block truncate text-[14px] font-medium">
               {h.conversation?.title ?? "Conversation"}
             </span>
             <span className="block truncate text-[12px] text-muted-foreground">{h.excerpt}</span>
@@ -291,7 +291,7 @@ export function CommandPalette() {
             strokeWidth={2}
           />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13.5px] font-medium">{c.title}</span>
+            <span className="block truncate text-[14px] font-medium">{c.title}</span>
             <span className="block truncate text-[12px] text-muted-foreground">{c.snippet}</span>
           </span>
         </>
@@ -327,7 +327,7 @@ export function CommandPalette() {
       <DialogContent
         showCloseButton={false}
         aria-label="Command palette"
-        className="panel raised top-[12%] translate-y-0 overflow-hidden !p-0 sm:max-w-xl"
+        className="top-[12%] translate-y-0 overflow-hidden !p-0 sm:max-w-xl"
       >
         <div className="flex max-h-[min(70vh,34rem)] flex-col" onKeyDown={onKeyDown}>
           <div className="rule-b flex items-center gap-2.5 px-4 py-3.5">
@@ -341,13 +341,13 @@ export function CommandPalette() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search chats, messages, knowledge — or run a command"
-              className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground/80"
+              className="w-full bg-transparent text-[16px] tracking-[-0.011em] outline-none placeholder:text-muted-foreground/70"
             />
             <kbd>esc</kbd>
           </div>
           <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto p-1.5">
             {items.length === 0 && (
-              <p className="px-3 py-8 text-center text-[13.5px] text-muted-foreground">
+              <p className="px-3 py-8 text-center text-[14px] text-muted-foreground">
                 Nothing found for “{query}”.
               </p>
             )}
@@ -357,7 +357,7 @@ export function CommandPalette() {
               return (
                 <React.Fragment key={item.key}>
                   {header && (
-                    <div className="px-2.5 pt-2.5 pb-1 text-[11.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+                    <div className="px-2.5 pt-3 pb-1 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                       {header}
                     </div>
                   )}
@@ -367,8 +367,10 @@ export function CommandPalette() {
                     onMouseEnter={() => setCursor(i)}
                     onClick={item.run}
                     className={cn(
-                      "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-[14px] transition-colors",
-                      cursor === i ? "bg-[var(--paper-3)]" : "hover:bg-[var(--paper-3)]/70"
+                      "press flex w-full items-center gap-2.5 rounded-[9px] px-2.5 py-2 text-left text-[14px]",
+                      cursor === i
+                        ? "bg-[var(--paper-2)] shadow-[var(--shadow-1)]"
+                        : "hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)]"
                     )}
                   >
                     {item.render}

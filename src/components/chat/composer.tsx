@@ -66,14 +66,14 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
   const activeCollections = collections.filter((c) => params.knowledgeCollections.includes(c.id))
 
   return (
-    <div className="px-3 pb-4 md:px-10 md:pb-6">
+    <div className="glass-bar rule-t px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-10 md:pt-3 md:pb-4">
       <div className="mx-auto w-full max-w-3xl">
         {queue.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
             {queue.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] py-1.5 pr-1.5 pl-2.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-[10px] border border-hairline bg-[var(--paper-2)] py-1.5 pr-1.5 pl-2.5 text-[13px] shadow-[var(--shadow-1)] animate-[pop_0.2s_var(--ease-arrive)_both]"
               >
                 <span className="max-w-40 truncate font-medium">{att.name}</span>
                 <span className="text-muted-foreground">{fmtBytes(att.size)}</span>
@@ -81,7 +81,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
                   type="button"
                   aria-label={`Remove ${att.name}`}
                   onClick={() => store.getState().removeQueued(att.id)}
-                  className="grid size-5 place-items-center rounded-[5px] text-muted-foreground hover:bg-destructive/12 hover:text-destructive"
+                  className="press grid size-5 place-items-center rounded-[6px] text-muted-foreground hover:bg-destructive/12 hover:text-destructive"
                 >
                   <HugeiconsIcon icon={CloseIcon} className="size-3" strokeWidth={2.5} />
                 </button>
@@ -102,12 +102,12 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
             void store.getState().attachFiles([...e.dataTransfer.files])
           }}
           className={cn(
-            "relative rounded-xl border bg-[var(--paper-2)] p-1.5 transition-colors",
-            dragging ? "border-[var(--accent-solid)]" : "border-border"
+            "relative rounded-[20px] border bg-[var(--paper-2)] p-1.5 shadow-[var(--shadow-1),inset_0_1px_0_var(--edge-inner)] transition-[border-color,box-shadow] duration-[var(--dur-state)] ease-[var(--ease-out)] focus-within:border-[color-mix(in_oklab,var(--foreground)_22%,transparent)] focus-within:shadow-[var(--shadow-2),inset_0_1px_0_var(--edge-inner)]",
+            dragging ? "border-[var(--accent-solid)]" : "border-hairline"
           )}
         >
           {dragging && (
-            <div className="pointer-events-none absolute inset-0 grid place-items-center rounded-xl bg-[var(--paper-2)] text-[14px] font-semibold">
+            <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[20px] bg-[var(--paper-2)] text-[14px] font-semibold animate-[fade-in_0.14s_var(--ease-out)_both]">
               Drop files to attach
             </div>
           )}
@@ -124,7 +124,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
                 ? "Ask a research question — the agent will plan, search and cite…"
                 : "Message your model…"
             }
-            className="field-sizing-content max-h-[42vh] min-h-11 w-full resize-none bg-transparent px-3 py-2.5 text-[16.5px] leading-relaxed outline-none placeholder:text-muted-foreground/80"
+            className="field-sizing-content max-h-[42vh] min-h-11 w-full resize-none bg-transparent px-3.5 py-2.5 text-[17px] leading-relaxed tracking-[-0.011em] outline-none placeholder:text-muted-foreground/70"
           />
 
           <div className="flex items-center gap-1 px-1 pb-0.5">
@@ -133,7 +133,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
               onClick={() => fileRef.current?.click()}
               title="Attach files"
               aria-label="Attach files"
-              className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--paper-3)] hover:text-foreground"
+              className="press press-active grid size-8 place-items-center rounded-[9px] text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
             >
               <HugeiconsIcon icon={AttachmentIcon} className="size-4" strokeWidth={2} />
             </button>
@@ -181,16 +181,16 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
             />
 
             {mode === "research" && (
-              <div className="ml-1 flex rounded-md border border-border p-0.5">
+              <div className="ml-1 flex rounded-[10px] border border-hairline bg-[var(--paper-3)] p-0.5">
                 {(["quick", "standard", "deep"] as const).map((d) => (
                   <button
                     key={d}
                     type="button"
                     onClick={() => store.getState().set("researchDepth", d)}
                     className={cn(
-                      "rounded-[5px] px-2 py-0.5 text-[12px] font-medium capitalize transition-colors",
+                      "press rounded-[7px] px-2 py-0.5 text-[12px] font-medium capitalize",
                       depth === d
-                        ? "bg-[var(--paper-3)] text-foreground"
+                        ? "bg-[var(--paper-2)] text-foreground shadow-[var(--shadow-1)]"
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -205,13 +205,13 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
             <button
               type="button"
               onClick={onOpenModels}
-              className="flex max-w-[14rem] items-center gap-1.5 rounded-md px-2.5 py-1 font-mono text-[12.5px] text-muted-foreground transition-colors hover:bg-[var(--paper-3)] hover:text-foreground"
+              className="press flex max-w-[14rem] items-center gap-1.5 rounded-[9px] px-2.5 py-1 font-mono text-[13px] text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
             >
               <span className="truncate">{selection.model || "Pick a model"}</span>
             </button>
 
             {settings.showTokenCounts && draft.length > 0 && (
-              <span className="mr-1 font-mono text-[11.5px] text-muted-foreground tabular-nums">
+              <span className="mr-1 font-mono text-[12px] text-muted-foreground tabular-nums">
                 ~{tokens}
               </span>
             )}
@@ -220,7 +220,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
               <button
                 type="button"
                 onClick={() => store.getState().stop()}
-                className="ink-fill grid size-9 place-items-center rounded-full transition-opacity hover:opacity-90"
+                className="ink-fill press press-active grid size-9 place-items-center rounded-full shadow-[var(--shadow-1)] hover:opacity-90"
                 aria-label="Stop generating"
                 title="Stop"
               >
@@ -232,7 +232,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
                 onClick={send}
                 disabled={!draft.trim() && !queue.length}
                 aria-label="Send message"
-                className="accent-fill grid size-9 place-items-center rounded-full transition-opacity hover:opacity-90 disabled:opacity-30"
+                className="accent-fill press press-active grid size-9 place-items-center rounded-full shadow-[var(--shadow-1)] hover:opacity-90 disabled:scale-100 disabled:opacity-25 disabled:shadow-none"
               >
                 <HugeiconsIcon icon={SendIcon} className="size-4" strokeWidth={2.5} />
               </button>
@@ -240,7 +240,7 @@ export function Composer({ onOpenModels }: { onOpenModels: () => void }) {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-3 text-[11.5px] text-muted-foreground">
+        <div className="mt-2.5 flex items-center justify-center gap-3 text-[12px] text-muted-foreground">
           <span>
             <kbd>{settings.sendKey === "enter" ? "↵" : "⌘↵"}</kbd> send
           </span>
@@ -278,15 +278,15 @@ function Toggle({
       aria-label={label}
       aria-pressed={active}
       className={cn(
-        "relative grid size-8 place-items-center rounded-md transition-colors",
+        "press press-active relative grid size-8 place-items-center rounded-[9px]",
         active
-          ? "bg-[var(--paper-3)] text-[var(--accent-solid)]"
-          : "text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
+          ? "bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)] text-foreground"
+          : "text-muted-foreground hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)] hover:text-foreground"
       )}
     >
       <HugeiconsIcon icon={icon} className="size-4" strokeWidth={2} />
       {badge ? (
-        <span className="absolute -top-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full border border-border bg-[var(--paper)] font-mono text-[9.5px] font-bold text-foreground">
+        <span className="absolute -top-0.5 -right-0.5 grid size-3.5 place-items-center rounded-full border border-hairline bg-[var(--paper-2)] font-mono text-[10px] font-bold text-foreground shadow-[var(--shadow-1)]">
           {badge}
         </span>
       ) : null}

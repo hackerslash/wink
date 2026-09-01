@@ -1,30 +1,68 @@
-/* Wink design tokens — see design.md. Every colour, size and easing the app
- * uses is named here; components reference tokens, never raw values. */
+/* Wink design tokens — see design.md.
+ *
+ * The light theme is built on two distinct grounds, not one wash: a cool grey
+ * FIELD that the window chrome floats on, and a near-white SHEET that holds
+ * everything you read. Chrome is translucent over the field; content is opaque
+ * on the sheet. That separation is what the eye reads as depth — no gradients
+ * anywhere, no coloured glows. */
 
 :root {
-  /* paper / ink ------------------------------------------------------- */
-  --paper: oklch(98.4% 0.003 75);
+  /* grounds ------------------------------------------------------------ */
+  /* The field behind the chrome. Everything translucent samples from this. */
+  --canvas: oklch(93.6% 0.004 262);
+  /* The reading sheet: messages, prose, long-form panels. */
+  --paper: oklch(99.4% 0.0012 262);
+  /* Raised control fill sitting on the sheet. */
   --paper-2: oklch(100% 0 0);
-  --paper-3: oklch(95.4% 0.006 75);
-  /* The shell (sidebar, header, inspector) sits a step below the canvas so the
-   * three regions read apart without borders doing all the work. */
-  --shell: oklch(96.2% 0.006 75);
-  --rule: oklch(89% 0.007 75);
-  --ink: oklch(20% 0.008 60);
-  --ink-2: oklch(46% 0.008 65);
+  /* Hover, active row, muted well. */
+  --paper-3: oklch(96.4% 0.004 262);
+  /* Opaque chrome fallback where backdrop-filter is unavailable. */
+  --shell: oklch(97.1% 0.003 262);
+
+  --ink: oklch(19% 0.009 262);
+  --ink-2: oklch(48.5% 0.008 262);
+  /* Two weights of separator: a visible rule and a true hairline that only
+   * describes an edge. Hairlines are ink at low alpha, never a grey fill, so
+   * they hold up over both glass and paper. */
+  --rule: oklch(89% 0.005 262);
+  --hairline: color-mix(in oklab, var(--ink) 10%, transparent);
+
+  /* glass — a tint plus a blur, plus a specular top edge for thickness ---
+   * `--mat-chrome` sits over the field and lifts with white; `--mat-bar` sits
+   * over the white sheet and has to tint down to have a value of its own. */
+  --mat-chrome: oklch(100% 0 0 / 0.62);
+  --mat-bar: color-mix(in oklab, var(--canvas) 68%, transparent);
+  --mat-overlay: oklch(100% 0 0 / 0.82);
+  --mat-scrim: oklch(90% 0.004 262 / 0.5);
+  --mat-blur: 40px;
+  --mat-blur-heavy: 48px;
+  --mat-sat: 180%;
+  --edge-top: oklch(100% 0 0 / 0.9);
+  --edge-inner: oklch(100% 0 0 / 0.55);
 
   /* Semantic hues — each one earns its place by meaning something: where a
    * model runs, whether a tool touches the network, how a step ended. */
-  --hue-local: oklch(52% 0.13 155);
-  --hue-cloud: oklch(53% 0.13 245);
-  --hue-warn: oklch(58% 0.14 65);
-  --hue-good: oklch(52% 0.13 150);
-  --hue-info: oklch(52% 0.11 275);
+  --hue-local: oklch(52% 0.13 158);
+  --hue-cloud: oklch(53% 0.13 248);
+  --hue-warn: oklch(58% 0.14 68);
+  --hue-good: oklch(52% 0.13 152);
+  --hue-info: oklch(52% 0.11 278);
 
-  /* accent — a highlighter, never a fill for large areas --------------- */
+  /* accent — a signal, never a surface -------------------------------- */
   --accent-solid: oklch(55% 0.17 30);
   --accent-on: oklch(99% 0.002 75);
   --accent-soft: color-mix(in oklab, var(--accent-solid) 12%, transparent);
+
+  /* elevation — offset plus soft blur, in three steps ------------------ */
+  --shadow-1:
+    0 1px 1px oklch(20% 0.01 262 / 0.04),
+    0 2px 6px -2px oklch(20% 0.01 262 / 0.07);
+  --shadow-2:
+    0 1px 2px oklch(20% 0.01 262 / 0.06),
+    0 12px 32px -10px oklch(20% 0.01 262 / 0.18);
+  --shadow-3:
+    0 2px 6px oklch(20% 0.01 262 / 0.06),
+    0 28px 70px -20px oklch(20% 0.01 262 / 0.24);
 
   /* shadcn contract --------------------------------------------------- */
   --background: var(--paper);
@@ -46,7 +84,7 @@
   --input: var(--rule);
   --ring: var(--accent-solid);
   --radius: 10px;
-  --sidebar: var(--paper);
+  --sidebar: var(--canvas);
   --sidebar-foreground: var(--ink);
   --sidebar-primary: var(--ink);
   --sidebar-primary-foreground: var(--paper-2);
@@ -55,14 +93,21 @@
   --sidebar-border: var(--rule);
   --sidebar-ring: var(--accent-solid);
 
-  /* type scale — 1.25 ratio, anchored one step up from the old build --- */
-  --text-micro: 11.5px;
-  --text-label: 12.5px;
+  /* type — SF's own scale, anchored at 16 px body. Every step is a whole
+   * pixel: half-pixel sizes rasterise inconsistently on a 1x display. ----- */
+  --text-micro: 12px;
+  --text-label: 13px;
   --text-ui: 14px;
-  --text-body: 15.5px;
-  --text-read: 16.5px;
+  --text-body: 16px;
+  --text-read: 17px;
   --text-title: 19px;
-  --text-display: clamp(2.1rem, 4.2vw, 3.2rem);
+  --text-display: clamp(2.25rem, 4.4vw, 3.25rem);
+
+  /* SF tightens as it grows and opens up as it shrinks; the tracking pairs
+   * with each size rather than being set once on the root. */
+  --track-display: -0.026em;
+  --track-title: -0.018em;
+  --track-body: -0.008em;
 
   /* space — 4 pt scale ------------------------------------------------- */
   --space-xs: 4px;
@@ -73,17 +118,19 @@
   --space-2xl: 64px;
 
   /* motion ------------------------------------------------------------ */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-state: 120ms;
-  --dur-layer: 200ms;
-  --dur-panel: 320ms;
+  /* Sharper deceleration, for things that arrive rather than change. */
+  --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-state: 140ms;
+  --dur-layer: 240ms;
+  --dur-panel: 380ms;
 
   /* code surface ------------------------------------------------------ */
-  --code-bg: oklch(21% 0.012 70);
-  --code-rule: oklch(30% 0.012 70);
-  --code-fg: oklch(93% 0.006 80);
-  --code-dim: oklch(64% 0.01 75);
+  --code-bg: oklch(20% 0.011 265);
+  --code-rule: oklch(29% 0.011 265);
+  --code-fg: oklch(93% 0.005 265);
+  --code-dim: oklch(64% 0.009 265);
   --code-kw: oklch(76% 0.13 320);
   --code-str: oklch(80% 0.13 145);
   --code-num: oklch(82% 0.12 65);
@@ -93,29 +140,50 @@
 }
 
 .dark {
-  /* Lifted off black: a pure-black canvas next to lighter chrome reads broken. */
-  --paper: oklch(19.5% 0.008 70);
-  --paper-2: oklch(23% 0.009 70);
-  --paper-3: oklch(27% 0.01 70);
-  --shell: oklch(17% 0.008 70);
-  --rule: oklch(31% 0.01 70);
-  --ink: oklch(95.5% 0.004 80);
-  --ink-2: oklch(72% 0.008 75);
+  /* Dark keeps the same two grounds: a near-black field, a lifted sheet. */
+  --canvas: oklch(13.2% 0.006 262);
+  --paper: oklch(20.2% 0.006 262);
+  --paper-2: oklch(24% 0.007 262);
+  --paper-3: oklch(28% 0.008 262);
+  --shell: oklch(14.6% 0.006 262);
 
-  --hue-local: oklch(76% 0.15 155);
-  --hue-cloud: oklch(74% 0.13 245);
-  --hue-warn: oklch(80% 0.13 75);
-  --hue-good: oklch(76% 0.14 150);
-  --hue-info: oklch(75% 0.12 275);
+  --ink: oklch(96% 0.003 262);
+  --ink-2: oklch(71.5% 0.007 262);
+  --rule: oklch(30.5% 0.008 262);
+  --hairline: color-mix(in oklab, oklch(100% 0 0) 11%, transparent);
+
+  --mat-chrome: oklch(100% 0 0 / 0.045);
+  --mat-bar: color-mix(in oklab, var(--canvas) 72%, transparent);
+  --mat-overlay: oklch(30% 0.008 262 / 0.72);
+  --mat-scrim: oklch(10% 0.006 262 / 0.5);
+  --edge-top: oklch(100% 0 0 / 0.14);
+  --edge-inner: oklch(100% 0 0 / 0.07);
+
+  --hue-local: oklch(78% 0.15 158);
+  --hue-cloud: oklch(76% 0.13 248);
+  --hue-warn: oklch(81% 0.13 78);
+  --hue-good: oklch(78% 0.14 152);
+  --hue-info: oklch(77% 0.12 278);
 
   --accent-solid: oklch(68% 0.15 32);
   --accent-on: oklch(16% 0.01 60);
 
+  --shadow-1:
+    0 1px 1px oklch(0% 0 0 / 0.3),
+    0 2px 6px -2px oklch(0% 0 0 / 0.4);
+  --shadow-2:
+    0 1px 2px oklch(0% 0 0 / 0.34),
+    0 10px 28px -10px oklch(0% 0 0 / 0.55);
+  --shadow-3:
+    0 2px 6px oklch(0% 0 0 / 0.4),
+    0 28px 70px -20px oklch(0% 0 0 / 0.7);
+
   --destructive: oklch(68% 0.17 25);
   --primary: var(--ink);
   --primary-foreground: oklch(16% 0.01 60);
+  --sidebar: var(--canvas);
   --sidebar-primary-foreground: oklch(16% 0.01 60);
 
-  --code-bg: oklch(12.5% 0.008 70);
-  --code-rule: oklch(24% 0.008 70);
+  --code-bg: oklch(13% 0.007 265);
+  --code-rule: oklch(24% 0.007 265);
 }

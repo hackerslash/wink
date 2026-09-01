@@ -41,12 +41,12 @@ export function Inspector() {
   return (
     <aside
       className={cn(
-        "z-20 hidden h-full shrink-0 overflow-hidden transition-[width,opacity] duration-400 lg:block",
+        "glass z-20 hidden h-full shrink-0 overflow-hidden transition-[width,opacity] duration-[var(--dur-panel)] lg:block",
         open ? "w-[21rem] opacity-100" : "w-0 opacity-0"
       )}
       style={{ transitionTimingFunction: "var(--ease-out)" }}
     >
-      <div className="flex h-full flex-col overflow-hidden border-l border-border bg-[var(--shell)]">
+      <div className="flex h-full w-[21rem] min-w-[21rem] flex-col overflow-hidden">
         <div className="flex h-14 items-center gap-1 px-2 rule-b">
           {TABS.map((t) => (
             <button
@@ -56,10 +56,10 @@ export function Inspector() {
               title={t.label}
               aria-label={t.label}
               className={cn(
-                "grid size-8 place-items-center rounded-xl transition-all",
+                "press press-active grid size-8 place-items-center rounded-[9px]",
                 tab === t.id
-                  ? "bg-[var(--paper-3)] text-foreground"
-                  : "text-muted-foreground hover:bg-[var(--paper-3)]/70 hover:text-foreground"
+                  ? "bg-[var(--paper-2)] text-foreground shadow-[var(--shadow-1)]"
+                  : "text-muted-foreground hover:bg-[color-mix(in_oklab,var(--foreground)_7%,transparent)] hover:text-foreground"
               )}
             >
               <HugeiconsIcon icon={t.icon} className="size-4" strokeWidth={2} />
@@ -70,7 +70,7 @@ export function Inspector() {
             type="button"
             aria-label="Close inspector"
             onClick={() => useStore.getState().set("inspectorOpen", false)}
-            className="grid size-8 place-items-center rounded-xl text-muted-foreground hover:bg-foreground/[0.06]"
+            className="press press-active grid size-8 place-items-center rounded-[9px] text-muted-foreground hover:bg-[color-mix(in_oklab,var(--foreground)_7%,transparent)] hover:text-foreground"
           >
             <HugeiconsIcon
               icon={CloseIcon}
@@ -103,12 +103,12 @@ function Section({
 }) {
   return (
     <section className="mb-5">
-      <h3 className="mb-2 font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase">
+      <h3 className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
         {title}
       </h3>
       {children}
       {hint && (
-        <p className="mt-1.5 text-[11.5px] leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
           {hint}
         </p>
       )}
@@ -133,7 +133,7 @@ function Row({
 
 function Num({ value }: { value: number | string }) {
   return (
-    <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
+    <span className="font-mono text-[13px] text-muted-foreground tabular-nums">
       {value}
     </span>
   )
@@ -162,7 +162,7 @@ function ModelTab() {
         <button
           type="button"
           onClick={() => store.getState().set("modelPickerOpen", true)}
-          className="flex w-full items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-3 py-2 text-left transition-colors hover:bg-[var(--paper-3)]"
+          className="flex w-full items-center gap-2 rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] px-3 py-2 text-left transition-colors hover:bg-[var(--paper-3)]"
         >
           <HugeiconsIcon
             icon={SparklesIcon}
@@ -173,7 +173,7 @@ function ModelTab() {
             <span className="block truncate text-[13px] font-semibold">
               {model?.label ?? selection.model ?? "Pick a model"}
             </span>
-            <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+            <span className="block truncate font-mono text-[12px] text-muted-foreground">
               {providers.find((p) => p.id === selection.providerId)?.label ??
                 "no provider"}
               {model
@@ -187,7 +187,7 @@ function ModelTab() {
             {compare.map((c) => (
               <div
                 key={`${c.providerId}:${c.model}`}
-                className="flex items-center gap-1.5 rounded-xl bg-foreground/[0.05] px-2 py-1 text-[12.5px]"
+                className="flex items-center gap-1.5 rounded-xl bg-foreground/[0.05] px-2 py-1 text-[13px]"
               >
                 <span className="size-1.5 rounded-full accent-fill" />
                 <span className="truncate font-mono">{c.model}</span>
@@ -196,7 +196,7 @@ function ModelTab() {
             <button
               type="button"
               onClick={() => void store.getState().setCompare(undefined)}
-              className="text-[11.5px] font-medium text-muted-foreground hover:underline"
+              className="text-[12px] font-medium text-muted-foreground hover:underline"
             >
               exit comparison
             </button>
@@ -212,10 +212,10 @@ function ModelTab() {
               type="button"
               onClick={() => void store.getState().applyAssistant(a.id)}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] font-medium transition-all",
+                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-medium transition-all",
                 conv?.assistantId === a.id
                   ? "ink-fill"
-                  : "border border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
+                  : "border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] hover:bg-[var(--paper-3)]"
               )}
             >
               <span>{a.emoji}</span>
@@ -232,7 +232,7 @@ function ModelTab() {
             void store.getState().setParams({ systemPrompt: e.target.value })
           }
           placeholder="Default Wink personality"
-          className="field-sizing-content max-h-60 min-h-20 w-full resize-none rounded-md border border-border bg-[var(--paper-2)] px-3 py-2 text-[13.5px] leading-relaxed outline-none focus:border-[var(--accent-solid)]"
+          className="field-sizing-content max-h-60 min-h-20 w-full resize-none rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] px-3 py-2 text-[14px] leading-relaxed outline-none focus:border-[var(--accent-solid)]"
         />
       </Section>
 
@@ -272,7 +272,7 @@ function ModelTab() {
                 maxTokens: e.target.value ? Number(e.target.value) : null,
               })
             }
-            className="w-24 rounded-lg px-2 py-1 text-right font-mono text-[12.5px] outline-none panel-2"
+            className="w-24 rounded-[9px] px-2 py-1 text-right font-mono text-[13px] outline-none panel-2"
           />
         </Row>
         {model?.capabilities.reasoning && (
@@ -288,7 +288,7 @@ function ModelTab() {
                     })
                   }
                   className={cn(
-                    "rounded-full px-2 py-0.5 text-[11.5px] font-semibold capitalize transition-all",
+                    "rounded-full px-2 py-0.5 text-[12px] font-semibold capitalize transition-all",
                     (params.reasoningEffort ?? "off") === level
                       ? "bg-background"
                       : "text-muted-foreground"
@@ -319,7 +319,7 @@ function ModelTab() {
               <button
                 type="button"
                 onClick={() => void store.getState().setParams(p.params)}
-                className="rounded-l-full bg-foreground/[0.06] px-2.5 py-1 text-[12.5px] font-medium hover:bg-foreground/[0.12]"
+                className="rounded-l-full bg-foreground/[0.06] px-2.5 py-1 text-[13px] font-medium hover:bg-foreground/[0.12]"
               >
                 {p.name}
               </button>
@@ -356,7 +356,7 @@ function ModelTab() {
                 createdAt: Date.now(),
               })
             }}
-            className="rounded-full border border-dashed border-border px-2.5 py-1 text-[12.5px] font-medium text-muted-foreground hover:border-primary hover:text-primary"
+            className="rounded-full border border-dashed border-border px-2.5 py-1 text-[13px] font-medium text-muted-foreground hover:border-primary hover:text-primary"
           >
             + save current
           </button>
@@ -438,7 +438,7 @@ function ContextTab() {
                     <span className="block truncate text-[13px] font-medium">
                       {c.name}
                     </span>
-                    <span className="block font-mono text-[11.5px] text-muted-foreground">
+                    <span className="block font-mono text-[12px] text-muted-foreground">
                       {c.docCount} docs · {c.chunkCount} chunks
                     </span>
                   </span>
@@ -528,7 +528,7 @@ function MemoryTab() {
         <button
           type="button"
           onClick={() => store.getState().openSettings("memory")}
-          className="mt-2 text-[11.5px] font-medium text-primary hover:underline"
+          className="mt-2 text-[12px] font-medium text-primary hover:underline"
         >
           manage all memories →
         </button>
@@ -544,7 +544,7 @@ function MemoryRow({ id }: { id: string }) {
   return (
     <div
       className={cn(
-        "group rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2 text-[12.5px] leading-relaxed",
+        "group rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] px-2.5 py-2 text-[13px] leading-relaxed",
         memory.disabled && "opacity-45"
       )}
     >
@@ -629,13 +629,13 @@ function SourcesTab() {
               href={c.url ?? "#"}
               target={c.url ? "_blank" : undefined}
               rel="noreferrer noopener"
-              className="block rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2 transition-colors hover:bg-[var(--paper-3)]"
+              className="block rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] px-2.5 py-2 transition-colors hover:bg-[var(--paper-3)]"
             >
               <span className="flex items-center gap-1.5">
-                <span className="font-mono text-[11.5px] text-primary">
+                <span className="font-mono text-[12px] text-primary">
                   [{c.n}]
                 </span>
-                <span className="truncate text-[12.5px] font-semibold">
+                <span className="truncate text-[13px] font-semibold">
                   {c.title}
                 </span>
               </span>
@@ -650,7 +650,7 @@ function SourcesTab() {
                 </span>
               )}
               {c.snippet && (
-                <span className="mt-1 line-clamp-3 block text-[11.5px] leading-relaxed text-muted-foreground">
+                <span className="mt-1 line-clamp-3 block text-[12px] leading-relaxed text-muted-foreground">
                   {c.snippet}
                 </span>
               )}
@@ -681,10 +681,10 @@ function ToolsTab() {
             return (
               <div
                 key={tool.name}
-                className="rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2"
+                className="rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] px-2.5 py-2"
               >
                 <div className="flex items-center gap-1.5">
-                  <span className="truncate text-[12.5px] font-semibold">
+                  <span className="truncate text-[13px] font-semibold">
                     {tool.title}
                   </span>
                   {tool.network && (
@@ -716,7 +716,7 @@ function ToolsTab() {
                     ))}
                   </div>
                 </div>
-                <p className="mt-0.5 line-clamp-2 text-[11.5px] text-muted-foreground">
+                <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
                   {tool.description}
                 </p>
               </div>
@@ -727,7 +727,7 @@ function ToolsTab() {
       <button
         type="button"
         onClick={() => store.getState().openSettings("tools")}
-        className="text-[11.5px] font-medium text-primary hover:underline"
+        className="text-[12px] font-medium text-primary hover:underline"
       >
         configure search, reader and MCP servers →
       </button>
@@ -776,7 +776,7 @@ function InfoTab() {
           <button
             type="button"
             onClick={() => void exportConversation(conv.id, "md")}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border bg-[var(--paper-2)] py-2 text-[12.5px] font-medium transition-colors hover:bg-[var(--paper-3)]"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] py-2 text-[13px] font-medium transition-colors hover:bg-[var(--paper-3)]"
           >
             <HugeiconsIcon
               icon={DownloadIcon}
@@ -788,7 +788,7 @@ function InfoTab() {
           <button
             type="button"
             onClick={() => void exportConversation(conv.id, "json")}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border bg-[var(--paper-2)] py-2 text-[12.5px] font-medium transition-colors hover:bg-[var(--paper-3)]"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)] py-2 text-[13px] font-medium transition-colors hover:bg-[var(--paper-3)]"
           >
             <HugeiconsIcon
               icon={DownloadIcon}
@@ -810,7 +810,7 @@ function InfoTab() {
                   tags: conv.tags.filter((x) => x !== t),
                 })
               }
-              className="flex items-center gap-1 rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[11.5px] font-medium hover:bg-destructive/15 hover:text-destructive"
+              className="flex items-center gap-1 rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[12px] font-medium hover:bg-destructive/15 hover:text-destructive"
             >
               {t}
               <HugeiconsIcon
@@ -829,7 +829,7 @@ function InfoTab() {
                   tags: [...new Set([...conv.tags, tag.trim()])],
                 })
             }}
-            className="rounded-full border border-dashed border-border px-2 py-0.5 text-[11.5px] text-muted-foreground hover:border-primary hover:text-primary"
+            className="rounded-full border border-dashed border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:border-primary hover:text-primary"
           >
             + tag
           </button>

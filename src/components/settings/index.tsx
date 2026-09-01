@@ -46,18 +46,18 @@ export function SettingsDialog() {
       <DialogContent
         showCloseButton={false}
         aria-label="Settings"
-        className="flex h-[min(86vh,46rem)] w-[min(96vw,58rem)] max-w-none flex-col overflow-hidden !p-0 panel sm:max-w-none md:flex-row"
+        className="flex h-[min(86vh,46rem)] w-[min(96vw,58rem)] max-w-none flex-col overflow-hidden !p-0 sm:max-w-none md:flex-row"
       >
-        <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-border/50 p-2 md:w-48 md:flex-col md:overflow-y-auto md:border-r md:border-b-0">
+        <nav className="rule-b flex shrink-0 gap-1 overflow-x-auto p-2 md:w-52 md:flex-col md:overflow-y-auto md:border-r md:border-b-0 md:border-[var(--hairline)]">
           <div className="mb-1 hidden items-center gap-2 px-2 pt-1 md:flex">
-            <span className="grid size-6 place-items-center rounded-lg accent-fill text-white">
+            <span className="accent-fill grid size-6 place-items-center rounded-[8px]">
               <HugeiconsIcon
                 icon={SettingsIcon}
                 className="size-3.5"
                 strokeWidth={2}
               />
             </span>
-            <span className="text-[13px] font-bold">Settings</span>
+            <span className="text-[14px] font-semibold tracking-[-0.012em]">Settings</span>
           </div>
           {TABS.map((t) => (
             <button
@@ -65,10 +65,10 @@ export function SettingsDialog() {
               type="button"
               onClick={() => store.getState().openSettings(t.id)}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] font-medium transition-colors",
+                "press flex shrink-0 items-center gap-2 rounded-[9px] px-2.5 py-2 text-left text-[14px] font-medium",
                 tab === t.id
-                  ? "bg-foreground/[0.1]"
-                  : "text-muted-foreground hover:bg-foreground/[0.05]"
+                  ? "bg-[var(--paper-2)] text-foreground shadow-[var(--shadow-1)]"
+                  : "text-muted-foreground hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)] hover:text-foreground"
               )}
             >
               <HugeiconsIcon
@@ -91,7 +91,7 @@ export function SettingsDialog() {
               type="button"
               aria-label="Close settings"
               onClick={() => store.getState().openSettings(null)}
-              className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--paper-3)] hover:text-foreground"
+              className="press press-active grid size-8 place-items-center rounded-[9px] text-muted-foreground hover:bg-[color-mix(in_oklab,var(--foreground)_7%,transparent)] hover:text-foreground"
             >
               <HugeiconsIcon icon={CloseIcon} className="size-4" strokeWidth={2} />
             </button>

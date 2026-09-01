@@ -94,12 +94,12 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "z-30 flex h-full shrink-0 flex-col overflow-hidden bg-[var(--shell)] transition-[width] duration-300",
+        "glass z-30 flex h-full shrink-0 flex-col overflow-hidden transition-[width] duration-[var(--dur-panel)]",
         open ? "w-[17.5rem]" : "w-0"
       )}
       style={{ transitionTimingFunction: "var(--ease-out)" }}
     >
-      <div className="rule-r flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 w-[17.5rem] min-w-[17.5rem] flex-1 flex-col overflow-hidden">
         <div className="flex h-14 shrink-0 items-center gap-2 px-4">
           <Wordmark />
           <span className="flex-1" />
@@ -108,14 +108,14 @@ export function Sidebar() {
             onClick={() => void store.getState().newConversation()}
             title="New chat (⌘N)"
             aria-label="New chat"
-            className="grid size-8 place-items-center rounded-md border border-border bg-[var(--paper-2)] text-foreground transition-colors hover:bg-[var(--paper-3)]"
+            className="press press-active grid size-8 place-items-center rounded-[9px] border border-hairline bg-[var(--paper-2)] text-foreground shadow-[var(--shadow-1),inset_0_1px_0_var(--edge-inner)] hover:bg-[var(--paper-3)]"
           >
             <HugeiconsIcon icon={AddIcon} className="size-4" strokeWidth={2.4} />
           </button>
         </div>
 
         <div className="px-4 pb-3">
-          <label className="flex items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-2 focus-within:border-[var(--accent-solid)]">
+          <label className="flex items-center gap-2 rounded-[10px] border border-hairline bg-[var(--paper-2)] px-2.5 py-2 shadow-[var(--shadow-1)] transition-[border-color,box-shadow] duration-[var(--dur-state)] ease-[var(--ease-out)] focus-within:border-[var(--accent-solid)] focus-within:shadow-[var(--shadow-2)]">
             <HugeiconsIcon
               icon={SearchIcon}
               className="size-3.5 shrink-0 text-muted-foreground"
@@ -125,13 +125,13 @@ export function Sidebar() {
               value={search}
               onChange={(e) => store.getState().set("search", e.target.value)}
               placeholder="Search chats"
-              className="w-full bg-transparent text-[13.5px] outline-none placeholder:text-muted-foreground/80"
+              className="w-full bg-transparent text-[14px] outline-none placeholder:text-muted-foreground/80"
             />
             {search && (
               <button
                 type="button"
                 onClick={() => store.getState().set("search", "")}
-                className="text-[11.5px] text-muted-foreground hover:text-foreground"
+                className="press text-[12px] text-muted-foreground hover:text-foreground"
               >
                 clear
               </button>
@@ -140,7 +140,7 @@ export function Sidebar() {
         </div>
 
         <nav className="px-4 pb-3">
-          <div className="flex rounded-md border border-border bg-[var(--paper-2)] p-0.5">
+          <div className="flex rounded-[10px] border border-hairline bg-[color-mix(in_oklab,var(--foreground)_5%,transparent)] p-0.5">
             {(["chats", "archive", "trash"] as const).map((v) => (
               <button
                 key={v}
@@ -148,9 +148,9 @@ export function Sidebar() {
                 onClick={() => setView(v)}
                 aria-pressed={view === v}
                 className={cn(
-                  "flex-1 rounded-[6px] py-1 text-[12.5px] font-medium capitalize transition-colors",
+                  "press flex-1 rounded-[7px] py-1 text-[13px] font-medium capitalize",
                   view === v
-                    ? "bg-[var(--paper-3)] text-foreground"
+                    ? "bg-[var(--paper-2)] text-foreground shadow-[var(--shadow-1)]"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -194,7 +194,7 @@ export function Sidebar() {
                       if (window.confirm(`Permanently delete ${visible.length} conversation(s)?`))
                         void store.getState().emptyTrash()
                     }}
-                    className="flex items-center gap-1 rounded-[5px] px-1.5 py-0.5 text-[11.5px] font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    className="press flex items-center gap-1 rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                   >
                     <HugeiconsIcon icon={DeleteIcon} className="size-3" strokeWidth={2} />
                     Empty
@@ -257,12 +257,12 @@ export function Sidebar() {
           <button
             type="button"
             onClick={() => store.getState().openSettings("privacy")}
-            className="mt-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--paper-3)]"
+            className="press mt-1 flex w-full items-center gap-2 rounded-[9px] px-2 py-1.5 text-left hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)]"
           >
             <HugeiconsIcon icon={ShieldIcon} className="size-3.5 shrink-0 text-good" strokeWidth={2} />
             <span className="min-w-0 flex-1">
-              <span className="block text-[12.5px] font-medium">Stored on this device</span>
-              <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+              <span className="block text-[13px] font-medium">Stored on this device</span>
+              <span className="block truncate font-mono text-[12px] text-muted-foreground">
                 {fmtBytes(used)}
               </span>
             </span>
@@ -285,7 +285,7 @@ function Group({
   return (
     <div>
       <div className="flex items-center gap-2 px-2.5 py-1.5">
-        <span className="text-[11.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+        <span className="text-[12px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
           {label}
         </span>
         <span className="flex-1" />
@@ -334,7 +334,7 @@ function FolderGroup({
           type="button"
           aria-label={`Delete folder ${name}`}
           onClick={() => void store.getState().deleteFolder(id)}
-          className="grid size-5 place-items-center rounded-[5px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-destructive"
+          className="press grid size-5 place-items-center rounded-[6px] text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive"
         >
           <HugeiconsIcon icon={DeleteIcon} className="size-3" strokeWidth={2} />
         </button>
@@ -359,11 +359,11 @@ function NavRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13.5px] transition-colors hover:bg-[var(--paper-3)]"
+      className="press flex w-full items-center gap-2 rounded-[9px] px-2 py-1.5 text-left text-[14px] hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)]"
     >
       <HugeiconsIcon icon={icon} className="size-4 text-muted-foreground" strokeWidth={2} />
       <span className="flex-1 truncate font-medium">{label}</span>
-      {hint && <span className="font-mono text-[11.5px] text-muted-foreground">{hint}</span>}
+      {hint && <span className="font-mono text-[12px] text-muted-foreground">{hint}</span>}
     </button>
   )
 }
@@ -391,15 +391,17 @@ function ConvRow({ conv, active }: { conv: Conversation; active: boolean }) {
             setRenaming(false)
           }
         }}
-        className="w-full rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 text-[13.5px] outline-none"
+        className="w-full rounded-[9px] border border-[var(--accent-solid)] bg-[var(--paper-2)] px-2.5 py-1.5 text-[14px] shadow-[var(--shadow-1)] outline-none"
       />
     )
 
   return (
     <div
       className={cn(
-        "group flex items-center gap-1 rounded-md pr-1 transition-colors",
-        active ? "bg-[var(--paper-3)]" : "hover:bg-[var(--paper-3)]/70"
+        "press group flex items-center gap-1 rounded-[9px] pr-1",
+        active
+          ? "bg-[var(--paper-2)] shadow-[var(--shadow-1)]"
+          : "hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)]"
       )}
     >
       <button
@@ -417,7 +419,7 @@ function ConvRow({ conv, active }: { conv: Conversation; active: boolean }) {
           )}
           <span
             className={cn(
-              "truncate text-[13.5px]",
+              "truncate text-[14px]",
               active ? "font-semibold" : "font-medium",
               conv.title === "New chat" && "text-muted-foreground"
             )}
@@ -430,7 +432,7 @@ function ConvRow({ conv, active }: { conv: Conversation; active: boolean }) {
             {conv.tags.slice(0, 3).map((t) => (
               <span
                 key={t}
-                className="rounded-[4px] bg-[var(--paper-3)] px-1 text-[10.5px] text-muted-foreground"
+                className="rounded-[5px] bg-[color-mix(in_oklab,var(--foreground)_7%,transparent)] px-1.5 text-[11px] text-muted-foreground"
               >
                 {t}
               </span>
@@ -445,7 +447,7 @@ function ConvRow({ conv, active }: { conv: Conversation; active: boolean }) {
             <button
               type="button"
               aria-label={`Actions for ${conv.title}`}
-              className="grid size-6 shrink-0 place-items-center rounded-[6px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 aria-expanded:opacity-100 hover:bg-[var(--paper-2)]"
+              className="press grid size-6 shrink-0 place-items-center rounded-[7px] text-muted-foreground opacity-0 group-hover:opacity-100 aria-expanded:opacity-100 hover:bg-[color-mix(in_oklab,var(--foreground)_8%,transparent)]"
             >
               <HugeiconsIcon icon={MoreIcon} className="size-3.5" strokeWidth={2} />
             </button>

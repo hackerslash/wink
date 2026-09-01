@@ -58,7 +58,7 @@ export function ModelPicker() {
     <Dialog open={open} onOpenChange={(v) => store.getState().set("modelPickerOpen", v)}>
       <DialogContent
         showCloseButton={false}
-        className="panel raised overflow-hidden !p-0 sm:max-w-xl"
+        className="overflow-hidden !p-0 sm:max-w-xl"
         aria-label="Model picker"
       >
         <div className="flex max-h-[min(70vh,40rem)] flex-col">
@@ -73,10 +73,10 @@ export function ModelPicker() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search models…"
-              className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground/80"
+              className="w-full bg-transparent text-[16px] tracking-[-0.011em] outline-none placeholder:text-muted-foreground/70"
             />
             {compare.length > 1 && (
-              <span className="accent-fill rounded-md px-2 py-0.5 text-[11.5px] font-semibold">
+              <span className="accent-fill rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.02em]">
                 comparing {compare.length}
               </span>
             )}
@@ -94,7 +94,7 @@ export function ModelPicker() {
                     store.getState().set("modelPickerOpen", false)
                     store.getState().openSettings("providers")
                   }}
-                  className="ink-fill inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13.5px] font-semibold"
+                  className="ink-fill press press-active inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[var(--shadow-1)] hover:opacity-90"
                 >
                   <HugeiconsIcon icon={SettingsIcon} className="size-3.5" strokeWidth={2} />
                   Connect a provider
@@ -128,8 +128,10 @@ export function ModelPicker() {
                       <div
                         key={model.id}
                         className={cn(
-                          "group flex items-center gap-2 rounded-md px-2.5 py-2 transition-colors",
-                          active ? "bg-[var(--paper-3)]" : "hover:bg-[var(--paper-3)]/70"
+                          "press group flex items-center gap-2 rounded-[10px] px-2.5 py-2",
+                          active
+                            ? "bg-[var(--paper-2)] shadow-[var(--shadow-1)]"
+                            : "hover:bg-[color-mix(in_oklab,var(--foreground)_6%,transparent)]"
                         )}
                       >
                         <button
@@ -151,7 +153,7 @@ export function ModelPicker() {
                                 />
                               )}
                             </span>
-                            <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+                            <span className="block truncate font-mono text-[12px] text-muted-foreground">
                               {model.id}
                             </span>
                           </span>
@@ -163,10 +165,10 @@ export function ModelPicker() {
                           aria-label="Add to comparison"
                           onClick={() => toggleCompare(provider, model)}
                           className={cn(
-                            "grid size-7 shrink-0 place-items-center rounded-md transition-colors",
+                            "press press-active grid size-7 shrink-0 place-items-center rounded-[8px]",
                             inCompare(provider, model)
-                              ? "ink-fill"
-                              : "text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-[var(--paper-3)]"
+                              ? "ink-fill shadow-[var(--shadow-1)]"
+                              : "text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-[color-mix(in_oklab,var(--foreground)_8%,transparent)]"
                           )}
                         >
                           <HugeiconsIcon icon={LayersIcon} className="size-3.5" strokeWidth={2} />
@@ -179,7 +181,7 @@ export function ModelPicker() {
             ))}
           </div>
 
-          <div className="rule-t flex items-center justify-between gap-2 px-4 py-2 text-[11.5px] text-muted-foreground">
+          <div className="rule-t flex items-center justify-between gap-2 px-4 py-2 text-[12px] text-muted-foreground">
             <span>pick 2 or more models to answer side by side</span>
             {compare.length > 1 && (
               <button

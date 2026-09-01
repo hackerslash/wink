@@ -33,7 +33,7 @@ export function ArtifactViewer({ artifact, onClose }: { artifact: Artifact; onCl
     <div className="panel flex h-full flex-col overflow-hidden rounded-xl">
       <div className="rule-b flex items-center gap-2 px-3 py-2">
         <HugeiconsIcon icon={CodeIcon} className="size-4 text-muted-foreground" strokeWidth={2} />
-        <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold">{artifact.title}</span>
+        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold">{artifact.title}</span>
         {previewable && (
           <div className="flex rounded-md border border-border p-0.5">
             {(["preview", "code"] as const).map((t) => (

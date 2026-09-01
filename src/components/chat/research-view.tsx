@@ -27,7 +27,7 @@ const done = run.steps.filter((s) => s.status !== "running").length
           <span className="block truncate text-[13px] font-semibold">
             {running ? "Researching" : run.status === "cancelled" ? "Research stopped" : "Research complete"}
           </span>
-          <span className="block truncate text-[12.5px] text-muted-foreground">
+          <span className="block truncate text-[13px] text-muted-foreground">
             {done}/{run.steps.length} steps · {run.sources.length} sources
             {run.endedAt && ` · ${((run.endedAt - run.startedAt) / 1000).toFixed(1)}s`}
           </span>
@@ -46,12 +46,12 @@ const done = run.steps.filter((s) => s.status !== "running").length
           ))}
           {run.sources.length > 0 && (
             <div className="pt-2">
-              <div className="px-2 pb-1 font-mono text-[11.5px] tracking-wider text-muted-foreground uppercase">
+              <div className="px-2 pb-1 font-mono text-[12px] tracking-wider text-muted-foreground uppercase">
                 Sources
               </div>
               <ol className="space-y-0.5">
                 {run.sources.map((s) => (
-                  <li key={s.n} className="flex gap-2 px-2 py-1 text-[12.5px]">
+                  <li key={s.n} className="flex gap-2 px-2 py-1 text-[13px]">
                     <span className="font-mono text-muted-foreground">[{s.n}]</span>
                     {s.url ? (
                       <a
@@ -95,19 +95,19 @@ function StepRow({ step }: { step: ResearchStep }) {
         >
           <HugeiconsIcon icon={icon} className="size-3" strokeWidth={2} />
         </span>
-        <span className="truncate text-[12.5px] font-medium">{step.label}</span>
+        <span className="truncate text-[13px] font-medium">{step.label}</span>
         {step.detail && (
-          <span className="truncate text-[12.5px] text-muted-foreground">— {step.detail}</span>
+          <span className="truncate text-[13px] text-muted-foreground">— {step.detail}</span>
         )}
         <span className="flex-1" />
         {step.endedAt && (
-          <span className="font-mono text-[11.5px] text-muted-foreground">
+          <span className="font-mono text-[12px] text-muted-foreground">
             {((step.endedAt - step.startedAt) / 1000).toFixed(1)}s
           </span>
         )}
       </button>
       {open && step.output && (
-        <pre className="mx-2 mb-2 max-h-56 overflow-auto rounded-lg bg-foreground/[0.05] p-2 text-[12.5px] whitespace-pre-wrap">
+        <pre className="mx-2 mb-2 max-h-56 overflow-auto rounded-lg bg-foreground/[0.05] p-2 text-[13px] whitespace-pre-wrap">
           {step.output}
         </pre>
       )}

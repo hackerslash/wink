@@ -79,7 +79,7 @@ export function MessageList({
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="h-full overflow-x-hidden overflow-y-auto px-4 pt-8 pb-4 md:px-10"
+        className="h-full overflow-x-hidden overflow-y-auto scroll-pt-[5.5rem] scroll-pb-[var(--composer-h,9rem)] px-4 pt-[5.5rem] pb-[var(--composer-h,9rem)] md:px-10"
       >
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
           {rows.map((row) => (
@@ -112,7 +112,7 @@ export function MessageList({
             const el = scrollRef.current
             if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
           }}
-          className="panel raised absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full px-3.5 py-1.5 text-[13px] font-medium animate-[pop_0.16s_var(--ease-out)_both]"
+          className="glass-overlay press press-active absolute bottom-[calc(var(--composer-h,9rem)+0.75rem)] left-1/2 z-10 -translate-x-1/2 rounded-full px-3.5 py-1.5 text-[13px] font-medium animate-[pop_0.24s_var(--ease-arrive)_both]"
         >
           {streaming ? "Jump to live ↓" : "Jump to latest ↓"}
         </button>
@@ -152,7 +152,7 @@ function RowView({
       style={{ gridTemplateColumns: `repeat(${Math.min(row.lanes.length, 3)}, minmax(0, 1fr))` }}
     >
       {row.lanes.map((msg) => (
-        <div key={msg.id} className="panel min-w-0 rounded-xl p-3.5">
+        <div key={msg.id} className="panel min-w-0 rounded-[16px] p-3.5">
           <div className="rule-b mb-2 flex items-center gap-1.5 pb-2">
             <span
               className="size-[6px] rounded-[2px]"
@@ -161,7 +161,7 @@ function RowView({
             />
             <span className="truncate font-mono text-[12px] font-medium">{msg.model}</span>
             {msg.usage?.ms ? (
-              <span className="ml-auto font-mono text-[11.5px] text-muted-foreground">
+              <span className="ml-auto font-mono text-[12px] text-muted-foreground">
                 {(msg.usage.ms / 1000).toFixed(1)}s
               </span>
             ) : null}

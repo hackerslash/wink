@@ -66,7 +66,7 @@ export function ToolCard({ call, onRetry }: { call: ToolCall; onRetry?: () => vo
         <span className="font-mono font-medium">{call.name}</span>
         <span className={cn("text-[12px]", status.className)}>{status.label}</span>
         {duration !== undefined && (
-          <span className="font-mono text-[11.5px] text-muted-foreground">{duration}ms</span>
+          <span className="font-mono text-[12px] text-muted-foreground">{duration}ms</span>
         )}
         <span className="flex-1" />
         {call.status === "error" && onRetry && (
@@ -91,7 +91,7 @@ export function ToolCard({ call, onRetry }: { call: ToolCall; onRetry?: () => vo
       {open && (
         <div className="rule-t space-y-2 px-3 py-2.5 text-[13px]">
           <Section label="Input">
-            <pre className="max-h-40 overflow-auto font-mono text-[12.5px] whitespace-pre-wrap">
+            <pre className="max-h-40 overflow-auto font-mono text-[13px] whitespace-pre-wrap">
               {JSON.stringify(call.args, null, 2)}
             </pre>
           </Section>
@@ -99,7 +99,7 @@ export function ToolCard({ call, onRetry }: { call: ToolCall; onRetry?: () => vo
             <Section label={call.error ? "Error" : "Output"}>
               <pre
                 className={cn(
-                  "max-h-64 overflow-auto font-mono text-[12.5px] whitespace-pre-wrap",
+                  "max-h-64 overflow-auto font-mono text-[13px] whitespace-pre-wrap",
                   call.error && "text-destructive"
                 )}
               >
@@ -116,7 +116,7 @@ export function ToolCard({ call, onRetry }: { call: ToolCall; onRetry?: () => vo
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <div className="font-mono text-[11.5px] tracking-wider text-muted-foreground uppercase">
+      <div className="font-mono text-[12px] tracking-wider text-muted-foreground uppercase">
         {label}
       </div>
       <div className="rounded-md border border-border bg-[var(--paper-3)] p-2">{children}</div>
@@ -140,9 +140,9 @@ export function PermissionPrompt({
     <div className="space-y-4">
       <div className="space-y-1.5">
         <div className="text-[16px] font-semibold">{toolTitle} wants to run</div>
-        <p className="text-[13.5px] text-muted-foreground">{description}</p>
+        <p className="text-[14px] text-muted-foreground">{description}</p>
       </div>
-      <pre className="max-h-40 overflow-auto rounded-md border border-border bg-[var(--paper-3)] p-3 font-mono text-[12.5px] whitespace-pre-wrap">
+      <pre className="max-h-40 overflow-auto rounded-md border border-border bg-[var(--paper-3)] p-3 font-mono text-[13px] whitespace-pre-wrap">
         {JSON.stringify(args, null, 2)}
       </pre>
       <label className="flex cursor-pointer items-center gap-2 text-[13px] text-muted-foreground">
@@ -159,7 +159,7 @@ export function PermissionPrompt({
         <button
           type="button"
           onClick={() => onDecide(false, remember)}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13.5px] font-medium text-muted-foreground transition-colors hover:bg-[var(--paper-3)]"
+          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[14px] font-medium text-muted-foreground transition-colors hover:bg-[var(--paper-3)]"
         >
           <HugeiconsIcon icon={CloseIcon} className="size-3.5" strokeWidth={2} />
           Deny
@@ -167,7 +167,7 @@ export function PermissionPrompt({
         <button
           type="button"
           onClick={() => onDecide(true, remember)}
-          className="ink-fill flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13.5px] font-semibold transition-opacity hover:opacity-90"
+          className="ink-fill flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[14px] font-semibold transition-opacity hover:opacity-90"
         >
           <HugeiconsIcon icon={CheckIcon} className="size-3.5" strokeWidth={2.5} />
           Allow

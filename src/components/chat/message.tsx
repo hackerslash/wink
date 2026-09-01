@@ -90,7 +90,7 @@ export const MessageView = React.memo(function MessageView({
   if (editing) {
     return (
       <div className={cn("group relative", isUser && "flex justify-end")}>
-        <div className="panel w-full max-w-[min(100%,52rem)] space-y-2 rounded-xl p-3">
+        <div className="panel w-full max-w-[min(100%,52rem)] space-y-2 rounded-[18px] p-3.5">
           <textarea
             autoFocus
             value={draft}
@@ -102,7 +102,7 @@ export const MessageView = React.memo(function MessageView({
                 void store.getState().editMessage(message.id, draft)
               }
             }}
-            className="field-sizing-content max-h-[50vh] min-h-24 w-full resize-none bg-transparent text-[16.5px] leading-relaxed outline-none"
+            className="field-sizing-content max-h-[50vh] min-h-24 w-full resize-none bg-transparent text-[17px] leading-relaxed outline-none"
           />
           <div className="flex items-center justify-end gap-2 text-[13px]">
             <span className="mr-auto text-muted-foreground">
@@ -111,7 +111,7 @@ export const MessageView = React.memo(function MessageView({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="rounded-full px-3 py-1.5 font-medium text-muted-foreground hover:bg-[var(--paper-3)]"
+              className="press press-active rounded-full px-3 py-1.5 font-medium text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground"
             >
               Cancel
             </button>
@@ -121,7 +121,7 @@ export const MessageView = React.memo(function MessageView({
                 setEditing(false)
                 void store.getState().editMessage(message.id, draft)
               }}
-              className="ink-fill rounded-full px-3.5 py-1.5 font-semibold"
+              className="ink-fill press press-active rounded-full px-3.5 py-1.5 font-semibold hover:opacity-90"
             >
               {isUser ? "Send fork" : "Save"}
             </button>
@@ -151,12 +151,12 @@ export const MessageView = React.memo(function MessageView({
               {message.model ?? "assistant"}
             </span>
             {message.usage?.ms ? (
-              <span className="font-mono text-[11.5px] text-muted-foreground">
+              <span className="font-mono text-[12px] text-muted-foreground">
                 {(message.usage.ms / 1000).toFixed(1)}s
               </span>
             ) : null}
             {rate !== null && (
-              <span className="font-mono text-[11.5px] text-muted-foreground tabular-nums">
+              <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
                 {rate} tok/s
               </span>
             )}
@@ -184,7 +184,7 @@ export const MessageView = React.memo(function MessageView({
         ))}
 
         {isUser ? (
-          <div className="rounded-xl border border-border bg-[var(--paper-3)] px-4 py-2.5 text-[16.5px] leading-relaxed whitespace-pre-wrap">
+          <div className="rounded-[18px] border border-hairline bg-[var(--paper-3)] px-4 py-2.5 text-[17px] leading-relaxed tracking-[-0.011em] whitespace-pre-wrap shadow-[var(--shadow-1)]">
             {message.content}
           </div>
         ) : body ? (
@@ -200,7 +200,7 @@ export const MessageView = React.memo(function MessageView({
         ) : null}
 
         {message.error && (
-          <div className="mt-2 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/8 px-3 py-2 text-[13px] text-destructive">
+          <div className="mt-2 flex items-start gap-2 rounded-[12px] border border-destructive/30 bg-destructive/8 px-3 py-2.5 text-[13px] text-destructive">
             <HugeiconsIcon icon={AlertIcon} className="mt-0.5 size-4 shrink-0" strokeWidth={2} />
             <span className="min-w-0 flex-1 break-words">{message.error}</span>
             <button
@@ -224,17 +224,17 @@ export const MessageView = React.memo(function MessageView({
           )}
         >
           {siblings.length > 1 && (
-            <div className="mr-1 flex items-center gap-0.5 rounded-md border border-border px-1 py-0.5">
+            <div className="mr-1 flex items-center gap-0.5 rounded-[8px] border border-hairline px-1 py-0.5">
               <button
                 type="button"
                 aria-label="Previous version"
                 disabled={branchIndex <= 0}
                 onClick={() => void store.getState().switchBranch(siblings[branchIndex - 1].id)}
-                className="grid size-5 place-items-center rounded-[5px] hover:bg-[var(--paper-3)] disabled:opacity-30"
+                className="press grid size-5 place-items-center rounded-[6px] hover:bg-[var(--paper-3)] disabled:opacity-30"
               >
                 <HugeiconsIcon icon={ChevronLeftIcon} className="size-3" strokeWidth={2.5} />
               </button>
-              <span className="font-mono text-[11.5px] text-muted-foreground tabular-nums">
+              <span className="font-mono text-[12px] text-muted-foreground tabular-nums">
                 {branchIndex + 1}/{siblings.length}
               </span>
               <button
@@ -242,7 +242,7 @@ export const MessageView = React.memo(function MessageView({
                 aria-label="Next version"
                 disabled={branchIndex >= siblings.length - 1}
                 onClick={() => void store.getState().switchBranch(siblings[branchIndex + 1].id)}
-                className="grid size-5 place-items-center rounded-[5px] hover:bg-[var(--paper-3)] disabled:opacity-30"
+                className="press grid size-5 place-items-center rounded-[6px] hover:bg-[var(--paper-3)] disabled:opacity-30"
               >
                 <HugeiconsIcon icon={ChevronRightIcon} className="size-3" strokeWidth={2.5} />
               </button>
@@ -282,7 +282,7 @@ export const MessageView = React.memo(function MessageView({
             onClick={() => void store.getState().deleteMessage(message.id)}
           />
           {message.usage && showCounts && (
-            <span className="ml-1 font-mono text-[11.5px] text-muted-foreground">
+            <span className="ml-1 font-mono text-[12px] text-muted-foreground">
               {fmtTokens(message.usage.in)}↑ {fmtTokens(message.usage.out)}↓
               {message.usage.cost != null ? ` ${fmtCost(message.usage.cost)}` : ""}
             </span>
@@ -311,7 +311,7 @@ function Action({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "grid size-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--paper-3)] hover:text-foreground",
+        "press press-active grid size-7 place-items-center rounded-[8px] text-muted-foreground hover:bg-[var(--paper-3)] hover:text-foreground",
         danger && "hover:bg-destructive/10 hover:text-destructive"
       )}
     >
@@ -323,11 +323,11 @@ function Action({
 function Reasoning({ text, streaming }: { text: string; streaming: boolean }) {
   const [open, setOpen] = React.useState(false)
   return (
-    <div className="mb-2 overflow-hidden rounded-lg border border-border bg-[var(--paper-2)]">
+    <div className="mb-2 overflow-hidden rounded-[12px] border border-hairline bg-[var(--paper-2)] shadow-[var(--shadow-1)]">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors hover:bg-[var(--paper-3)]"
+        className="press flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[var(--paper-3)]"
       >
         <HugeiconsIcon
           icon={BrainIcon}
@@ -335,7 +335,7 @@ function Reasoning({ text, streaming }: { text: string; streaming: boolean }) {
           strokeWidth={2}
         />
         <span className="text-[13px] font-medium">{streaming ? "Thinking…" : "Reasoning"}</span>
-        <span className="font-mono text-[11.5px] text-muted-foreground">
+        <span className="font-mono text-[12px] text-muted-foreground">
           {text.length.toLocaleString()} chars
         </span>
         <span className="flex-1" />
@@ -385,9 +385,9 @@ function CitationStrip({
           key={`${c.n}-${c.url ?? c.chunkId}`}
           type="button"
           onClick={() => onCitation(c)}
-          className="flex max-w-[16rem] items-center gap-1.5 rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1 text-[12.5px] transition-colors hover:bg-[var(--paper-3)]"
+          className="press press-active flex max-w-[16rem] items-center gap-1.5 rounded-full border border-hairline bg-[var(--paper-2)] px-2.5 py-1 text-[13px] shadow-[var(--shadow-1)] hover:bg-[var(--paper-3)]"
         >
-          <span className="font-mono text-[11.5px] text-[var(--accent-solid)]">{c.n}</span>
+          <span className="font-mono text-[12px] text-[var(--accent-solid)]">{c.n}</span>
           <span className="truncate">{c.title}</span>
         </button>
       ))}
@@ -415,14 +415,14 @@ function AttachmentChip({ attachment }: { attachment: Attachment }) {
       <img
         src={url}
         alt={attachment.name}
-        className="max-h-56 rounded-lg border border-border object-cover"
+        className="max-h-56 rounded-[12px] border border-hairline object-cover shadow-[var(--shadow-1)]"
       />
     ) : (
-      <div className="size-24 animate-pulse rounded-lg bg-[var(--paper-3)]" />
+      <div className="size-24 animate-pulse rounded-[12px] bg-[var(--paper-3)]" />
     )
 
   return (
-    <div className="flex items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 text-[12.5px]">
+    <div className="flex items-center gap-2 rounded-[10px] border border-hairline bg-[var(--paper-2)] px-2.5 py-1.5 text-[13px] shadow-[var(--shadow-1)]">
       <HugeiconsIcon
         icon={attachment.kind === "pdf" ? PdfIcon : FileIcon}
         className="size-3.5 text-muted-foreground"

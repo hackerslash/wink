@@ -29,7 +29,7 @@ export function ProvidersPanel() {
         Keys are encrypted with a non-extractable device key and stored only in this browser.
         Requests go straight from your browser to the provider — Wink has no server. Local endpoints
         (Ollama, LM Studio, llama.cpp) need CORS enabled: for Ollama, start it with{" "}
-        <code className="rounded bg-[var(--paper-2)] px-1 font-mono text-[12.5px]">
+        <code className="rounded bg-[var(--paper-2)] px-1 font-mono text-[13px]">
           OLLAMA_ORIGINS=*
         </code>
         .
@@ -44,7 +44,7 @@ export function ProvidersPanel() {
       )}
 
       <section>
-        <h3 className="mb-2 text-[12.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+        <h3 className="mb-2 text-[13px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
           Connect a provider
         </h3>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -61,7 +61,7 @@ export function ProvidersPanel() {
                   className={cn("size-3.5", t.local ? "text-local" : "text-cloud")}
                   strokeWidth={2}
                 />
-                <span className="truncate text-[13.5px] font-semibold">{t.label}</span>
+                <span className="truncate text-[14px] font-semibold">{t.label}</span>
                 <HugeiconsIcon
                   icon={AddIcon}
                   className="ml-auto size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
@@ -124,7 +124,7 @@ function AddProvider({ template, onDone }: { template: ProviderTemplate; onDone:
         <input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          className="w-full rounded-md border border-border bg-[var(--paper)] px-2.5 py-1.5 text-[13.5px] outline-none"
+          className="w-full rounded-md border border-border bg-[var(--paper)] px-2.5 py-1.5 text-[14px] outline-none"
         />
       </Field>
       <Field label="Base URL">
@@ -149,7 +149,7 @@ function AddProvider({ template, onDone }: { template: ProviderTemplate; onDone:
           href={template.docs}
           target="_blank"
           rel="noreferrer noopener"
-          className="inline-block text-[12.5px] font-medium text-[var(--accent-solid)] hover:underline"
+          className="inline-block text-[13px] font-medium text-[var(--accent-solid)] hover:underline"
         >
           get a key →
         </a>
@@ -158,7 +158,7 @@ function AddProvider({ template, onDone }: { template: ProviderTemplate; onDone:
         type="button"
         disabled={busy}
         onClick={() => void submit()}
-        className="ink-fill w-full rounded-full py-2 text-[13.5px] font-semibold disabled:opacity-60"
+        className="ink-fill w-full rounded-full py-2 text-[14px] font-semibold disabled:opacity-60"
       >
         {busy ? "Connecting…" : "Connect and load models"}
       </button>
@@ -217,7 +217,7 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
               />
             )}
           </div>
-          <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
+          <span className="block truncate font-mono text-[12px] text-muted-foreground">
             {provider.baseUrl} · {usable.length} models
           </span>
         </div>
@@ -297,7 +297,7 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
               href={keyPage}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-1 text-[12.5px] font-medium text-[var(--accent-solid)] hover:underline"
+              className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--accent-solid)] hover:underline"
             >
               <HugeiconsIcon icon={KeyIcon} className="size-3" strokeWidth={2} />
               Get a {provider.label} key ↗
@@ -346,8 +346,8 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
               className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-[var(--paper-3)]"
             >
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-mono text-[12.5px]">{m.id}</span>
-                <span className="block text-[11.5px] text-muted-foreground">
+                <span className="block truncate font-mono text-[13px]">{m.id}</span>
+                <span className="block text-[12px] text-muted-foreground">
                   {fmtTokens(m.capabilities.contextWindow)} ctx
                   {m.capabilities.vision && " · vision"}
                   {m.capabilities.tools && " · tools"}
@@ -366,14 +366,14 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
                 onClick={() =>
                   void store.getState().patchModel(provider.id, m.id, { hidden: !m.hidden })
                 }
-                className="text-[11.5px] font-medium text-muted-foreground hover:text-foreground"
+                className="text-[12px] font-medium text-muted-foreground hover:text-foreground"
               >
                 {m.hidden ? "show" : "hide"}
               </button>
             </div>
           ))}
           {provider.models.length === 0 && (
-            <p className="px-1.5 py-2 text-[12.5px] text-muted-foreground">
+            <p className="px-1.5 py-2 text-[13px] text-muted-foreground">
               No models loaded yet — hit refresh.
             </p>
           )}
@@ -399,7 +399,7 @@ function SmallBtn({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[12.5px] font-medium transition-colors hover:bg-[var(--paper-3)]",
+        "flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[13px] font-medium transition-colors hover:bg-[var(--paper-3)]",
         danger && "hover:border-destructive/40 hover:bg-destructive/8 hover:text-destructive"
       )}
     >

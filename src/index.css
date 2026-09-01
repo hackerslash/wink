@@ -1,8 +1,8 @@
-/* Hallmark · genre: modern-minimal · macrostructure: Workbench · theme: custom
- * paper oklch(97.6% 0.004 75) · accent oklch(55% 0.17 30) vermilion
- * display Figtree 600 (-0.024em) · body Figtree 400 · outlier SF Mono
- * axes: light paper · geometric-sans display · warm accent
- * pre-emit critique: P5 H4 E4 S4 R5 V4
+/* Wink · genre: system-native · macrostructure: Floating Workbench
+ * field oklch(93.6% 0.004 262) cool grey · sheet oklch(99.4%) near-white
+ * chrome: translucent glass, 40px blur, 180% saturate, specular top edge
+ * display SF Pro 600 (-0.026em) · body SF Pro 400/16px · fallback Figtree
+ * axes: two grounds not one · material chrome over opaque content · rare accent
  */
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -14,7 +14,12 @@
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: "Figtree Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    /* -apple-system resolves to SF Pro with real optical sizing: SF Text below
+     * 20 px, SF Display above, with Apple's own per-size tracking. Figtree is
+     * the bundled fallback for everything that is not an Apple platform. */
+    --font-sans:
+        -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Figtree Variable",
+        system-ui, sans-serif;
     --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
     --color-sidebar-ring: var(--sidebar-ring);
@@ -43,42 +48,75 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    --color-canvas: var(--canvas);
     --color-rule: var(--rule);
-    --color-shell: var(--shell);
+    --color-hairline: var(--hairline);
     --color-local: var(--hue-local);
     --color-cloud: var(--hue-cloud);
     --color-warn: var(--hue-warn);
     --color-good: var(--hue-good);
     --color-info: var(--hue-info);
 
-    /* Shape: 10 px controls, 14 px cards. Pills come from `rounded-full`, so
-     * the top of the scale stays a radius — shadcn primitives use `rounded-4xl`
-     * for their own chrome and must not turn into circles. */
-    --radius-sm: 6px;
+    /* Shape: continuous-feeling corners. 10 px controls, 16 px cards, 22 px
+     * sheets. shadcn primitives use `rounded-4xl` for pill chrome, so the top
+     * of the scale stays a radius large enough to clamp round on a 36 px row. */
+    --radius-sm: 7px;
     --radius-md: 10px;
-    --radius-lg: 12px;
-    --radius-xl: 14px;
-    --radius-2xl: 16px;
-    --radius-3xl: 18px;
-    --radius-4xl: 20px;
+    --radius-lg: 13px;
+    --radius-xl: 16px;
+    --radius-2xl: 18px;
+    --radius-3xl: 20px;
+    --radius-4xl: 22px;
 }
 
 /* ---------------------------------------------------------------- surfaces */
 
+/* Chrome glass, over the field: sidebar and inspector. */
+@utility glass {
+  background: var(--mat-chrome);
+  backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
+  -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
+}
+
+/* Bar glass, over the white sheet: header and composer. Tinted toward the
+ * field so the bar has a value of its own, and thin enough that the
+ * transcript stays visibly blurred through it. */
+@utility glass-bar {
+  background: var(--mat-bar);
+  backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
+  -webkit-backdrop-filter: blur(var(--mat-blur)) saturate(var(--mat-sat));
+}
+
+/* Overlay glass: dialogs, menus, the palette. Thicker, because text sits on it. */
+@utility glass-overlay {
+  background: var(--mat-overlay);
+  backdrop-filter: blur(var(--mat-blur-heavy)) saturate(var(--mat-sat));
+  -webkit-backdrop-filter: blur(var(--mat-blur-heavy)) saturate(var(--mat-sat));
+  box-shadow:
+    var(--shadow-3),
+    inset 0 1px 0 var(--edge-top);
+}
+
+/* Without backdrop-filter a tint this light is a transparent hole, so the
+ * fallback has to be fully opaque. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-bar,
+  .glass-overlay {
+    background: var(--shell);
+  }
+}
+
+/* Opaque surfaces — these hold text and never blur. */
 @utility panel {
   background: var(--paper-2);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-1);
 }
 
 @utility panel-2 {
   background: var(--paper-3);
-  border: 1px solid var(--rule);
-}
-
-@utility raised {
-  box-shadow:
-    0 1px 2px oklch(20% 0.01 60 / 0.06),
-    0 10px 28px -14px oklch(20% 0.01 60 / 0.14);
+  border: 1px solid var(--hairline);
 }
 
 @utility accent-fill {
@@ -91,16 +129,34 @@
   color: var(--background);
 }
 
+/* Ink at low alpha, so one hairline reads over glass and over paper alike. */
 @utility rule-b {
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--hairline);
 }
 
 @utility rule-r {
-  border-right: 1px solid var(--rule);
+  border-right: 1px solid var(--hairline);
 }
 
 @utility rule-t {
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--hairline);
+}
+
+@utility rule-l {
+  border-left: 1px solid var(--hairline);
+}
+
+@utility press {
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out),
+    transform var(--dur-state) var(--ease-out),
+    box-shadow var(--dur-state) var(--ease-out);
+}
+@utility press-active {
+  &:active {
+    transform: scale(0.96);
+  }
 }
 
 /* ------------------------------------------------------------------ motion */
@@ -110,12 +166,16 @@
   to { opacity: 1; }
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px) scale(0.99); }
   to { opacity: 1; transform: none; }
 }
 @keyframes pop {
-  from { opacity: 0; transform: scale(0.97); }
+  from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: none; }
+}
+@keyframes layer-in {
+  from { opacity: 0; transform: scale(0.975); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
 }
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
@@ -138,42 +198,69 @@
   .dark { color-scheme: dark; }
 
   html {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    /* SF sizes its own optical master; let it. */
+    font-optical-sizing: auto;
+    font-synthesis-weight: none;
     font-size: 16px;
-    letter-spacing: -0.006em;
+    text-size-adjust: 100%;
+  }
+  /* Grayscale antialiasing discards subpixel rendering, which only a Retina
+   * panel has the density to absorb. On 1x it reads as jitter. */
+  @media (min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2) {
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
   }
   body {
     overscroll-behavior: none;
-    background: var(--paper);
+    background: var(--canvas);
     color: var(--foreground);
     font-size: var(--text-body);
+    line-height: 1.5;
+    letter-spacing: var(--track-body);
   }
-  h1, h2, h3, h4 {
-    letter-spacing: -0.024em;
+  h1, h2, h3 {
+    letter-spacing: var(--track-display);
+    text-wrap: balance;
+  }
+  h4, h5, h6 {
+    letter-spacing: var(--track-title);
+  }
+  /* Numbers that sit in columns or tick upward never reflow. */
+  code, kbd, samp, pre, .font-mono {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
   }
   ::selection {
-    background: color-mix(in oklab, var(--accent-solid) 26%, transparent);
+    background: color-mix(in oklab, var(--accent-solid) 24%, transparent);
+  }
+  input, textarea {
+    caret-color: var(--accent-solid);
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklab, var(--foreground) 16%, transparent) transparent;
+    scrollbar-color: color-mix(in oklab, var(--foreground) 14%, transparent) transparent;
   }
-  *::-webkit-scrollbar { width: 11px; height: 11px; }
+  *::-webkit-scrollbar { width: 12px; height: 12px; }
   *::-webkit-scrollbar-track { background: transparent; }
   *::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--foreground) 15%, transparent);
-    border: 3px solid transparent;
+    background: color-mix(in oklab, var(--foreground) 13%, transparent);
+    border: 3.5px solid transparent;
     background-clip: content-box;
     border-radius: 99px;
+    transition: background-color var(--dur-state) var(--ease-out);
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in oklab, var(--foreground) 28%, transparent);
+    background: color-mix(in oklab, var(--foreground) 26%, transparent);
     background-clip: content-box;
   }
+  *::-webkit-scrollbar-corner { background: transparent; }
   kbd {
-    @apply rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground;
+    @apply rounded-[6px] px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground;
+    background: color-mix(in oklab, var(--foreground) 5%, transparent);
+    border: 1px solid var(--hairline);
+    box-shadow: inset 0 1px 0 var(--edge-inner);
   }
   :focus-visible {
     outline: 2px solid var(--accent-solid);
@@ -181,11 +268,14 @@
   }
 }
 
-/* Effects budget: the visual layer is solid, so this only governs animation. */
+/* The animation budget. The visual layer stays solid; only motion is cut. */
 [data-effects="off"] *,
 [data-effects="reduced"] * {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
+}
+[data-effects="off"] * {
+  transition-duration: 0.01ms !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -201,13 +291,15 @@
 .prose-wink {
   font-size: var(--text-read);
   line-height: 1.68;
+  letter-spacing: -0.011em;
 }
 .prose-wink > * + * { margin-top: 0.9em; }
 .prose-wink h1, .prose-wink h2, .prose-wink h3, .prose-wink h4 {
   @apply font-semibold;
-  margin-top: 1.5em;
-  margin-bottom: 0.45em;
-  line-height: 1.25;
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  line-height: 1.24;
+  letter-spacing: -0.022em;
 }
 .prose-wink h1 { font-size: 1.5em; }
 .prose-wink h2 { font-size: 1.28em; }
@@ -219,7 +311,8 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in oklab, var(--accent-solid) 40%, transparent);
+  text-decoration-color: color-mix(in oklab, var(--accent-solid) 38%, transparent);
+  transition: text-decoration-color var(--dur-state) var(--ease-out);
 }
 .prose-wink a:hover { text-decoration-color: var(--accent-solid); }
 .prose-wink ul { @apply list-disc space-y-1.5 pl-5; }
@@ -227,27 +320,45 @@
 .prose-wink li::marker { color: var(--muted-foreground); }
 .prose-wink blockquote {
   @apply my-4 py-1 pl-4 text-muted-foreground;
-  border-left: 2px solid var(--accent-solid);
+  border-left: 1px solid var(--accent-solid);
 }
 .prose-wink code:not(pre code) {
-  @apply rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono;
+  @apply rounded-[6px] px-1.5 py-0.5 font-mono;
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+  border: 1px solid var(--hairline);
   font-size: 0.86em;
 }
 .prose-wink table {
-  @apply my-4 w-full border-collapse text-[14px];
+  @apply my-4 w-full overflow-hidden rounded-[10px] text-[14px];
+  /* `collapse` would square off the container radius. */
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--hairline);
 }
 .prose-wink th, .prose-wink td {
-  border: 1px solid var(--rule);
+  border-bottom: 1px solid var(--hairline);
   @apply px-3 py-2 text-left align-top;
 }
-.prose-wink th { background: var(--paper-3); @apply font-semibold; }
-.prose-wink hr { @apply my-6; border-color: var(--rule); }
-.prose-wink img { @apply my-3 max-w-full rounded-xl; border: 1px solid var(--rule); }
+.prose-wink th + th, .prose-wink td + td { border-left: 1px solid var(--hairline); }
+.prose-wink tr:last-child td { border-bottom: 0; }
+.prose-wink th {
+  background: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+  @apply font-semibold;
+}
+.prose-wink hr { @apply my-6 border-0 border-t; border-color: var(--hairline); }
+.prose-wink img {
+  @apply my-3 max-w-full rounded-xl;
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-1);
+}
 .prose-wink .citation {
   @apply mx-0.5 inline-flex h-[1.2em] min-w-[1.2em] items-center justify-center rounded-[5px] px-1 align-baseline font-mono font-semibold no-underline;
   font-size: 0.72em;
-  background: color-mix(in oklab, var(--accent-solid) 14%, transparent);
+  background: color-mix(in oklab, var(--accent-solid) 13%, transparent);
   color: var(--accent-solid);
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
 }
 .prose-wink .citation:hover { background: var(--accent-solid); color: var(--accent-on); }
 /* The caret rides the last line of streamed text, not the bottom of the block:
@@ -260,7 +371,7 @@
 .streaming-caret > ol:last-child > li:last-child::after,
 .streaming-caret > blockquote:last-child > :last-child::after {
   content: "";
-  @apply ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[2px] align-baseline;
+  @apply ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[2px] rounded-full align-baseline;
   background: var(--accent-solid);
   animation: caret 1s steps(2) infinite;
 }
@@ -278,22 +389,29 @@
   @apply my-3 overflow-hidden rounded-xl;
   background: var(--code-bg);
   border: 1px solid var(--code-rule);
+  box-shadow: var(--shadow-1);
 }
 .code-block .code-head {
-  @apply flex h-9 items-center justify-between gap-2 px-3 font-mono text-[11px] tracking-wide;
+  @apply flex h-9 items-center justify-between gap-2 px-3.5 font-mono text-[11px] tracking-wide;
   color: var(--code-dim);
   border-bottom: 1px solid var(--code-rule);
 }
 .code-block .code-head span:first-child { @apply uppercase; }
 .code-block pre {
-  @apply m-0 overflow-x-auto border-0 bg-transparent p-4 font-mono text-[13.5px] leading-[1.62];
+  @apply m-0 overflow-x-auto border-0 bg-transparent p-4 font-mono text-[14px] leading-[1.62];
   color: var(--code-fg);
 }
-.code-block .code-actions { @apply flex items-center gap-1 opacity-0 transition-opacity; }
+.code-block .code-actions {
+  @apply flex items-center gap-1 opacity-0;
+  transition: opacity var(--dur-state) var(--ease-out);
+}
 .code-block:hover .code-actions, .code-block:focus-within .code-actions { @apply opacity-100; }
 .code-block .code-actions button {
-  @apply cursor-pointer rounded-md px-2 py-1 font-sans text-[12px] font-medium transition-colors;
+  @apply cursor-pointer rounded-md px-2 py-1 font-sans text-[12px] font-medium;
   color: var(--code-dim);
+  transition:
+    background-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
 }
 .code-block .code-actions button:hover {
   background: oklch(100% 0 0 / 0.08);
