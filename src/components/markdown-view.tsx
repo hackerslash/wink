@@ -13,10 +13,6 @@ interface Props {
   onArtifact?: (artifact: Artifact) => void
 }
 
-/**
- * Model output is rendered through marked with HTML escaped, links forced to
- * noopener, and [n] markers rewritten into citation chips.
- */
 export const MarkdownView = React.memo(function MarkdownView({
   content,
   citations = [],

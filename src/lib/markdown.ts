@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify"
 import hljs from "highlight.js/lib/common"
 import { marked, type Tokens } from "marked"
 
@@ -71,34 +72,14 @@ export function renderMarkdown(text: string, citations: Citation[] = []): string
   const key = `${citations.map((c) => c.n).join(",")}|${text}`
   const hit = cache.get(key)
   if (hit) return hit
-  const html = linkCitations(marked.parse(text, { async: false }), citations)
+  // marked emits raw HTML verbatim, and this lands in dangerouslySetInnerHTML.
+  const html = DOMPurify.sanitize(
+    linkCitations(marked.parse(text, { async: false }), citations),
+    { ADD_ATTR: ["target"] }
+  )
   if (cache.size > 300) cache.clear()
   cache.set(key, html)
   return html
-}
-
-/** Extracts artifact-worthy fenced blocks in document order. */
-export function extractArtifacts(text: string): Artifact[] {
-  const out: Artifact[] = []
-  const fence = /```([\w+-]*)\n([\s\S]*?)```/g
-  let match: RegExpExecArray | null
-  let i = 0
-  while ((match = fence.exec(text))) {
-    const [, lang, code] = match
-    const kind = artifactKind(lang, code)
-    if (!kind) continue
-    const firstLine = code.trim().split("\n")[0].slice(0, 60)
-    out.push({
-      id: `art-${i++}`,
-      kind,
-      lang: lang || "text",
-      title:
-        code.match(/<title>([^<]+)<\/title>/i)?.[1] ??
-        (kind === "code" ? `${lang || "code"} · ${code.split("\n").length} lines` : firstLine),
-      code,
-    })
-  }
-  return out
 }
 
 export function stripThinkTags(text: string) {
