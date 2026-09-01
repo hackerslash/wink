@@ -274,14 +274,22 @@ function ProviderCard({ provider }: { provider: ProviderConfig }) {
           />
             <button
               type="button"
-              onClick={() => {
-                void store.getState().setProviderKey(provider.id, key.trim())
-                setKey("")
-                setEditingKey(false)
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true)
+                try {
+                  await store.getState().setProviderKey(provider.id, key.trim())
+                  setKey("")
+                  setEditingKey(false)
+                } catch {
+                  /* refreshModels already toasted the rejection */
+                } finally {
+                  setBusy(false)
+                }
               }}
-              className="ink-fill rounded-full px-3 text-[13px] font-semibold"
+              className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold disabled:opacity-60"
             >
-              Save
+              {busy ? "Checking…" : "Save"}
             </button>
           </div>
           {keyPage && (

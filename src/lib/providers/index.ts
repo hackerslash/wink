@@ -19,6 +19,8 @@ const REGISTRY: Record<ProviderKind, ModelProvider> = {
 
 export const providerFor = (cfg: ProviderConfig) => REGISTRY[cfg.kind] ?? openaiProvider
 
+export const canEmbed = (cfg: ProviderConfig) => Boolean(providerFor(cfg).embed)
+
 export const keyId = (providerId: string) => `provider:${providerId}`
 
 export async function providerKey(cfg: ProviderConfig) {

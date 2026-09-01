@@ -1,5 +1,5 @@
 import type { ModelInfo } from "../types"
-import { inferCapabilities, inferPrice, prettyModelName } from "./capabilities"
+import { NON_CHAT, inferCapabilities, inferPrice, prettyModelName } from "./capabilities"
 import { assertOk, joinUrl, sse, type ChatMsg, type ModelProvider } from "./types"
 
 const bare = (m: string) => m.replace(/^models\//, "")
@@ -75,19 +75,26 @@ export const googleProvider: ModelProvider = {
       models: { name: string; displayName?: string; supportedGenerationMethods?: string[] }[]
     }
     return json.models
+      .map((m) => ({ ...m, id: bare(m.name), methods: m.supportedGenerationMethods ?? [] }))
       .filter(
         (m) =>
-          m.supportedGenerationMethods?.some((s) =>
-            /generateContent|embedContent/.test(s)
-          ) ?? true
+          !NON_CHAT.test(m.id) &&
+          (!m.methods.length ||
+            m.methods.some((s) => /generateContent|embedContent/.test(s)))
       )
-      .map<ModelInfo>((m) => ({
-        id: bare(m.name),
-        providerId: cfg.id,
-        label: m.displayName ?? prettyModelName(m.name),
-        capabilities: inferCapabilities(bare(m.name), "google"),
-        price: inferPrice(bare(m.name)),
-      }))
+      .map<ModelInfo>((m) => {
+        const embedding = m.methods.some((s) => /embedContent/i.test(s))
+        const caps = inferCapabilities(m.id, "google")
+        return {
+          id: m.id,
+          providerId: cfg.id,
+          label: m.displayName ?? prettyModelName(m.name),
+          capabilities: embedding
+            ? { ...caps, embedding: true, streaming: false, tools: false, maxOutput: 0 }
+            : caps,
+          price: inferPrice(m.id),
+        }
+      })
   },
 
   async *stream(cfg, key, req) {

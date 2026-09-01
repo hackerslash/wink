@@ -268,7 +268,11 @@ export const MessageView = React.memo(function MessageView({
             <Action
               label="Continue from here"
               icon={GitBranchIcon}
-              onClick={() => void store.getState().switchBranch(message.id)}
+              onClick={() =>
+                void store
+                  .getState()
+                  .patchConversation(message.conversationId, { headId: message.id })
+              }
             />
           )}
           <Action
@@ -280,7 +284,7 @@ export const MessageView = React.memo(function MessageView({
           {message.usage && showCounts && (
             <span className="ml-1 font-mono text-[11.5px] text-muted-foreground">
               {fmtTokens(message.usage.in)}↑ {fmtTokens(message.usage.out)}↓
-              {message.usage.cost ? ` ${fmtCost(message.usage.cost)}` : ""}
+              {message.usage.cost != null ? ` ${fmtCost(message.usage.cost)}` : ""}
             </span>
           )}
         </div>

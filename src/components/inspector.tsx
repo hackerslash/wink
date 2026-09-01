@@ -149,6 +149,7 @@ function ModelTab() {
   const settings = useStore((s) => s.settings)
   const store = useStore
   const params = conv?.params ?? settings.defaultParams
+  const compare = conv?.compareModels ?? []
   const selection = activeSelection(useStore.getState())
   const model = providers
     .find((p) => p.id === selection.providerId)
@@ -180,9 +181,9 @@ function ModelTab() {
             </span>
           </span>
         </button>
-        {conv?.compareModels?.length ? (
+        {compare.length > 1 ? (
           <div className="mt-2 space-y-1">
-            {conv.compareModels.map((c) => (
+            {compare.map((c) => (
               <div
                 key={`${c.providerId}:${c.model}`}
                 className="flex items-center gap-1.5 rounded-xl bg-foreground/[0.05] px-2 py-1 text-[12.5px]"

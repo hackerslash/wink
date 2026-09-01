@@ -1,5 +1,5 @@
 import type { ModelInfo, ProviderConfig } from "../types"
-import { inferCapabilities, inferPrice, prettyModelName } from "./capabilities"
+import { NON_CHAT, inferCapabilities, inferPrice, prettyModelName } from "./capabilities"
 import { assertOk, joinUrl, sse, type ChatDelta, type ChatMsg, type ModelProvider } from "./types"
 
 function headers(cfg: ProviderConfig, key: string | null) {
@@ -60,7 +60,15 @@ interface StreamChunk {
       }[]
     }
   }[]
-  usage?: { prompt_tokens?: number; completion_tokens?: number } | null
+  usage?: { prompt_tokens?: number; completion_tokens?: number; cost?: number } | null
+}
+
+/** OpenRouter quotes USD per token; our prices are per 1M. */
+function listedPrice(p?: { prompt?: string; completion?: string }) {
+  const i = Number(p?.prompt)
+  const o = Number(p?.completion)
+  if (!Number.isFinite(i) || !Number.isFinite(o)) return undefined
+  return { in: i * 1e6, out: o * 1e6 }
 }
 
 export const openaiProvider: ModelProvider = {
@@ -69,17 +77,21 @@ export const openaiProvider: ModelProvider = {
   async listModels(cfg, key) {
     const res = await fetch(joinUrl(cfg.baseUrl, "models"), { headers: headers(cfg, key) })
     await assertOk(res)
-    const json = (await res.json()) as { data?: { id: string }[]; models?: { name: string }[] }
-    const ids = json.data?.map((m) => m.id) ?? json.models?.map((m) => m.name) ?? []
-    return ids
-      .filter((id) => !/whisper|tts|dall-e|moderation|image|audio|realtime/i.test(id))
-      .sort()
-      .map<ModelInfo>((id) => ({
-        id,
+    const json = (await res.json()) as {
+      data?: { id: string; pricing?: { prompt?: string; completion?: string } }[]
+      models?: { name: string }[]
+    }
+    const listed: NonNullable<typeof json.data> =
+      json.data ?? json.models?.map((m) => ({ id: m.name })) ?? []
+    return listed
+      .filter((m) => !NON_CHAT.test(m.id))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map<ModelInfo>((m) => ({
+        id: m.id,
         providerId: cfg.id,
-        label: prettyModelName(id),
-        capabilities: inferCapabilities(id, cfg.kind),
-        price: inferPrice(id),
+        label: prettyModelName(m.id),
+        capabilities: inferCapabilities(m.id, cfg.kind),
+        price: listedPrice(m.pricing) ?? inferPrice(m.id),
       }))
   },
 
@@ -120,7 +132,12 @@ export const openaiProvider: ModelProvider = {
       }
       if (chunk.usage)
         yield {
-          usage: { in: chunk.usage.prompt_tokens ?? 0, out: chunk.usage.completion_tokens ?? 0 },
+          usage: {
+            in: chunk.usage.prompt_tokens ?? 0,
+            out: chunk.usage.completion_tokens ?? 0,
+            // OpenRouter reports what it actually charged, in USD.
+            cost: chunk.usage.cost,
+          },
         }
       const delta = chunk.choices?.[0]?.delta
       if (!delta) continue

@@ -30,10 +30,11 @@ import {
   type Backup,
 } from "@/lib/exporting"
 import { newMcpServer, type McpServer } from "@/lib/mcp"
+import { canEmbed } from "@/lib/providers"
 import { probeEmbedding, reindexCollection } from "@/lib/rag"
 import { addManualMemory } from "@/lib/memory"
 import { useStore } from "@/lib/store"
-import { tools } from "@/lib/tools"
+import { tools, webSearch } from "@/lib/tools"
 import type { Assistant, Settings } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { vault } from "@/lib/vault"
@@ -242,14 +243,17 @@ export function ToolsPanel() {
   const mcpServers = useStore((s) => s.mcpServers)
   const store = useStore
   const [searchKey, setSearchKey] = React.useState("")
-  const [customProvider, setCustomProvider] = React.useState("")
-  const [customModel, setCustomModel] = React.useState("")
+  const [editingSearchKey, setEditingSearchKey] = React.useState(false)
+  const [checkingSearchKey, setCheckingSearchKey] = React.useState(false)
   const [probing, setProbing] = React.useState(false)
   const [reindexing, setReindexing] = React.useState<string | null>(null)
+  const [manualEmbedModel, setManualEmbedModel] = React.useState("")
 
-  const embeddingModels = providers.flatMap((p) =>
-    p.models.filter((m) => m.capabilities.embedding).map((m) => ({ provider: p, model: m }))
+  const embedProviders = providers.filter((p) => p.enabled && canEmbed(p))
+  const [embedProviderId, setEmbedProviderId] = React.useState(
+    settings.embedding.providerId !== "local" ? settings.embedding.providerId : ""
   )
+  const embedProvider = embedProviders.find((p) => p.id === embedProviderId) ?? embedProviders[0]
   const active = SEARCH_KINDS.find((k) => k.id === settings.search.kind)
 
   const activeEmbedding =
@@ -260,8 +264,29 @@ export function ToolsPanel() {
 
   const save = (patch: Partial<Settings>) => void store.getState().saveSettings(patch)
 
-  /** Selecting a model probes it, so a bad id or key fails here, not silently
-   * three documents later. */
+  /** A key is only "saved" once a real search comes back with it. */
+  const saveSearchKey = async () => {
+    const key = searchKey.trim()
+    if (!key) return
+    setCheckingSearchKey(true)
+    const previous = settings.search.hasKey ? await vault.getSecret("search") : null
+    try {
+      await vault.setSecret("search", key)
+      await webSearch("test", { ...settings, search: { ...settings.search, hasKey: true } }, 1)
+      await store.getState().saveSettings({ search: { ...settings.search, hasKey: true } })
+      setSearchKey("")
+      setEditingSearchKey(false)
+      store.getState().toast("success", `${active?.label} key works`)
+    } catch (err) {
+      if (previous) await vault.setSecret("search", previous)
+      else await vault.delSecret("search")
+      store.getState().toast("error", `${active?.label}: ${(err as Error).message}`)
+    } finally {
+      setCheckingSearchKey(false)
+    }
+  }
+
+  /** Probing here means a bad id or key fails now, not three documents later. */
   const pick = async (providerId: string, model: string) => {
     const previous = settings.embedding
     const candidate = { providerId, model, dims: providerId === "local" ? 384 : 1536 }
@@ -271,7 +296,6 @@ export function ToolsPanel() {
       const dims = await probeEmbedding(store.getState().settings)
       await store.getState().saveSettings({ embedding: { ...candidate, dims } })
       store.getState().toast("success", `${model} · ${dims}d`)
-      setCustomModel("")
     } catch (err) {
       await store.getState().saveSettings({ embedding: previous })
       store.getState().toast("error", `${model}: ${(err as Error).message}`)
@@ -335,31 +359,54 @@ export function ToolsPanel() {
                 onChange={(e) => save({ search: { ...settings.search, endpoint: e.target.value } })}
               />
             ) : null}
-            {active.needsKey && (
-              <>
-                <div className="flex gap-1.5">
-                  <TextInput
-                    type="password"
-                    placeholder={settings.search.hasKey ? "key stored — paste to replace" : "API key"}
-                    value={searchKey}
-                    onChange={(e) => setSearchKey(e.target.value)}
+            {active.needsKey &&
+              (settings.search.hasKey && !editingSearchKey ? (
+                <div className="flex items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 text-[13px]">
+                  <HugeiconsIcon
+                    icon={CheckIcon}
+                    className="size-3.5 shrink-0 text-[var(--accent-solid)]"
+                    strokeWidth={3}
                   />
+                  <span className="flex-1">{active.label} key stored</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditingSearchKey(true)}
+                    className="font-semibold text-[var(--accent-solid)] hover:underline"
+                  >
+                    Replace
+                  </button>
                   <button
                     type="button"
                     onClick={async () => {
-                      await vault.setSecret("search", searchKey.trim())
-                      save({ search: { ...settings.search, hasKey: Boolean(searchKey.trim()) } })
-                      setSearchKey("")
-                      store.getState().toast("success", `${active.label} key saved`)
+                      await vault.delSecret("search")
+                      save({ search: { ...settings.search, hasKey: false } })
                     }}
-                    className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold"
+                    className="font-semibold text-muted-foreground hover:underline"
                   >
-                    Save
+                    Remove
                   </button>
                 </div>
-                {active.keyPage && <KeyLink href={active.keyPage} label={active.label} />}
-              </>
-            )}
+              ) : (
+                <>
+                  <div className="flex gap-1.5">
+                    <TextInput
+                      type="password"
+                      placeholder="API key"
+                      value={searchKey}
+                      onChange={(e) => setSearchKey(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      disabled={checkingSearchKey}
+                      onClick={() => void saveSearchKey()}
+                      className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold disabled:opacity-60"
+                    >
+                      {checkingSearchKey ? "Checking…" : "Save"}
+                    </button>
+                  </div>
+                  {active.keyPage && <KeyLink href={active.keyPage} label={active.label} />}
+                </>
+              ))}
           </div>
         )}
       </Section>
@@ -389,7 +436,7 @@ export function ToolsPanel() {
 
       <Section
         title="Embeddings"
-        hint="Used for knowledge retrieval and memory recall. Picking a model probes it once to read its real vector width."
+        hint="Used for knowledge retrieval and memory recall. Paste a model id; it is probed once to read its real vector width."
       >
         <div className="rounded-md border border-border bg-[var(--paper-2)] px-3 py-2 text-[13px]">
           <span className="font-medium">Active</span>{" "}
@@ -428,70 +475,42 @@ export function ToolsPanel() {
           )}
         </button>
 
-        {embeddingModels.map(({ provider, model }) => {
-          const on =
-            settings.embedding.providerId === provider.id && settings.embedding.model === model.id
-          return (
-            <button
-              key={`${provider.id}-${model.id}`}
-              type="button"
-              onClick={() => void pick(provider.id, model.id)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded-md border px-2.5 py-2 text-left transition-colors",
-                on
-                  ? "border-[var(--accent-solid)] bg-[var(--accent-soft)]"
-                  : "border-border bg-[var(--paper-2)] hover:bg-[var(--paper-3)]"
-              )}
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[13.5px] font-medium">{model.label}</span>
-                <span className="block truncate font-mono text-[11.5px] text-muted-foreground">
-                  {model.id} · {provider.label}
-                </span>
-              </span>
-              {on && (
-                <HugeiconsIcon
-                  icon={CheckIcon}
-                  className="size-4 text-[var(--accent-solid)]"
-                  strokeWidth={3}
-                />
-              )}
-            </button>
-          )
-        })}
-
-        {/* Capability detection cannot know every embedding model, so any model
-            id on any provider can be entered by hand. */}
-        <div className="space-y-1.5 rounded-md border border-dashed border-border p-2.5">
-          <span className="block text-[12.5px] font-medium">Use any model id</span>
+        {embedProviders.length === 0 ? (
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            No connected provider offers embeddings. Add OpenAI, Google, Ollama or any
+            OpenAI-compatible endpoint in Providers.
+          </p>
+        ) : (
           <div className="flex gap-1.5">
             <select
-              value={customProvider}
-              onChange={(e) => setCustomProvider(e.target.value)}
+              value={embedProvider?.id ?? ""}
+              onChange={(e) => setEmbedProviderId(e.target.value)}
               className="w-32 shrink-0 rounded-md border border-border bg-[var(--paper-2)] px-2 py-1.5 text-[13px] outline-none"
             >
-              <option value="">Provider…</option>
-              {providers.map((p) => (
+              {embedProviders.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.label}
                 </option>
               ))}
             </select>
             <TextInput
-              placeholder="nomic-embed-text"
-              value={customModel}
-              onChange={(e) => setCustomModel(e.target.value)}
+              placeholder="model id"
+              value={manualEmbedModel}
+              onChange={(e) => setManualEmbedModel(e.target.value)}
             />
             <button
               type="button"
-              disabled={!customProvider || !customModel.trim() || probing}
-              onClick={() => void pick(customProvider, customModel.trim())}
-              className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold disabled:opacity-50"
+              disabled={probing || !manualEmbedModel.trim()}
+              onClick={async () => {
+                await pick(embedProvider.id, manualEmbedModel.trim())
+                setManualEmbedModel("")
+              }}
+              className="ink-fill shrink-0 rounded-full px-3 text-[13px] font-semibold disabled:opacity-60"
             >
               {probing ? "Testing…" : "Use"}
             </button>
           </div>
-        </div>
+        )}
 
         {stale.length > 0 && (
           <div className="space-y-1.5 rounded-md border border-warn/40 bg-warn/8 p-2.5">

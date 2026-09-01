@@ -51,7 +51,7 @@ export function ModelPicker() {
     const next = inCompare(p, m)
       ? compare.filter((c) => !(c.providerId === p.id && c.model === m.id))
       : [...compare, { providerId: p.id, model: m.id }]
-    void store.getState().setCompare(next.length > 1 ? next : undefined)
+    void store.getState().setCompare(next.length ? next : undefined)
   }
 
   return (

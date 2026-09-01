@@ -72,6 +72,7 @@ function Header() {
   const selection = useActiveModel()
   const store = useStore
   const provider = providers.find((p) => p.id === selection.providerId)
+  const compare = conv?.compareModels ?? []
 
   return (
     <header className="rule-b flex h-14 shrink-0 items-center gap-2 bg-[var(--shell)] px-3 md:px-4">
@@ -88,7 +89,7 @@ function Header() {
       <button
         type="button"
         onClick={() => store.getState().set("modelPickerOpen", true)}
-        className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-2.5 py-1.5 transition-colors hover:bg-[var(--paper-3)]"
+        className="flex h-9 min-w-0 items-center gap-2 rounded-md border border-border bg-[var(--paper-2)] px-2.5 transition-colors hover:bg-[var(--paper-3)]"
       >
         {provider && (
           <HugeiconsIcon
@@ -97,17 +98,17 @@ function Header() {
             strokeWidth={2}
           />
         )}
-        <span className="min-w-0 text-left">
-          <span className="block truncate font-mono text-[13px] font-medium">
+        <span className="min-w-0 text-left leading-tight">
+          <span className="block truncate font-mono text-[12.5px] font-medium">
             {selection.model || "Choose a model"}
           </span>
-          {conv?.compareModels?.length ? (
-            <span className="block text-[11.5px] text-[var(--accent-solid)]">
-              comparing {conv.compareModels.length} models
+          {compare.length > 1 ? (
+            <span className="block text-[10.5px] text-[var(--accent-solid)]">
+              comparing {compare.length} models
             </span>
           ) : (
             provider && (
-              <span className="block truncate text-[11.5px] text-muted-foreground">
+              <span className="block truncate text-[10.5px] text-muted-foreground">
                 {provider.label}
               </span>
             )

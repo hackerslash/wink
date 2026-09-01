@@ -11,6 +11,9 @@ const base: ModelCapabilities = {
   input: ["text"],
 }
 
+/** Ids that are neither chat nor embedding models: never offered anywhere. */
+export const NON_CHAT = /whisper|tts|dall-e|moderation|image|audio|realtime|veo|rerank/i
+
 type Rule = {
   test: RegExp
   caps: Partial<ModelCapabilities>

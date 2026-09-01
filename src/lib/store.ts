@@ -216,6 +216,12 @@ export const useStore = create<Store>((set, get) => {
       .providers.find((p) => p.id === providerId)
       ?.models.find((m) => m.id === model)
 
+  /** A single pick is the active model, not a race. */
+  const laneModels = (conv: Conversation) =>
+    (conv.compareModels?.length ?? 0) > 1
+      ? conv.compareModels!
+      : [{ providerId: conv.providerId, model: conv.model }]
+
   const bumpConversation = async (patch: Partial<Conversation>) => {
     const conv = activeConversation()
     if (!conv) return
@@ -290,7 +296,7 @@ export const useStore = create<Store>((set, get) => {
     let visible = ""
     let iterText = ""
     let reasoning = ""
-    let usage = { in: 0, out: 0 }
+    let usage: { in: number; out: number; cost?: number } = { in: 0, out: 0 }
     const toolCalls: ToolCall[] = []
     const citations: Citation[] = [...knowledge]
     const started = Date.now()
@@ -327,7 +333,12 @@ export const useStore = create<Store>((set, get) => {
           reasoning += delta.reasoning
           touch(assistantMsg.id, { reasoning })
         }
-        if (delta.usage) usage = { in: delta.usage.in || usage.in, out: delta.usage.out || usage.out }
+        if (delta.usage)
+          usage = {
+            in: delta.usage.in || usage.in,
+            out: delta.usage.out || usage.out,
+            cost: delta.usage.cost ?? usage.cost,
+          }
         if (delta.toolCall) pending.push(delta.toolCall)
       }
 
@@ -427,7 +438,7 @@ export const useStore = create<Store>((set, get) => {
       }
     }
 
-    const cost = costOf(info, usage)
+    const cost = usage.cost ?? costOf(info, usage)
     touch(
       assistantMsg.id,
       {
@@ -664,6 +675,19 @@ export const useStore = create<Store>((set, get) => {
       if (!assistants.length) {
         assistants = builtinAssistants()
         await assistantStore.putMany(assistants)
+      } else {
+        // Builtins once had random ids, so a double init() left duplicates.
+        const seen = new Set<string>()
+        const dupes = assistants.filter((a) => {
+          if (!a.builtin) return false
+          if (seen.has(a.name)) return true
+          seen.add(a.name)
+          return false
+        })
+        if (dupes.length) {
+          await Promise.all(dupes.map((a) => assistantStore.del(a.id)))
+          assistants = assistants.filter((a) => !dupes.includes(a))
+        }
       }
       const mcpServers = (await kv.get<McpServer[]>("mcpServers")) ?? []
 
@@ -868,9 +892,7 @@ export const useStore = create<Store>((set, get) => {
       await messageStore.put(user)
       await bumpConversation({ headId: user.id })
 
-      const lanes = conv.compareModels?.length
-        ? conv.compareModels
-        : [{ providerId: conv.providerId, model: conv.model }]
+      const lanes = laneModels(conv)
       await generate({
         conv: { ...conv, headId: user.id },
         parentId: user.id,
@@ -917,9 +939,7 @@ export const useStore = create<Store>((set, get) => {
       await generate({
         conv: { ...conv, headId: edited.id },
         parentId: edited.id,
-        lanes: conv.compareModels?.length
-          ? conv.compareModels
-          : [{ providerId: conv.providerId, model: conv.model }],
+        lanes: laneModels(conv),
         mode: get().mode,
       })
     },
@@ -965,6 +985,8 @@ export const useStore = create<Store>((set, get) => {
     },
 
     async setCompare(models) {
+      // Without this the pick vanishes before the first chat exists.
+      if (!activeConversation()) await get().newConversation()
       await bumpConversation({ compareModels: models })
     },
 
@@ -1041,6 +1063,8 @@ export const useStore = create<Store>((set, get) => {
     async setProviderKey(id, key) {
       await vault.setSecret(keyId(id), key)
       await get().patchProvider(id, { hasKey: Boolean(key) })
+      // Listing models is authenticated, so it doubles as key validation.
+      if (key) await get().refreshModels(id)
     },
 
     async removeProvider(id) {

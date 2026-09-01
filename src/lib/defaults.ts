@@ -1,4 +1,3 @@
-import { uid } from "./db"
 import type { Assistant, GenerationParams, ModelInfo, Settings } from "./types"
 
 export const DEFAULT_PARAMS: GenerationParams = {
@@ -55,7 +54,7 @@ export function builtinAssistants(): Assistant[] {
     systemPrompt: string,
     params: Partial<GenerationParams> = {}
   ): Assistant => ({
-    id: uid(),
+    id: `builtin-${name.toLowerCase()}`,
     name,
     emoji,
     description,
@@ -109,7 +108,7 @@ export function costOf(model: ModelInfo | undefined, usage: { in: number; out: n
 }
 
 export const fmtCost = (n: number | undefined) =>
-  n === undefined ? "" : n < 0.01 ? `$${n.toFixed(4)}` : `$${n.toFixed(2)}`
+  n === undefined ? "" : n === 0 ? "free" : n < 0.01 ? `$${n.toFixed(4)}` : `$${n.toFixed(2)}`
 
 export const fmtTokens = (n: number) =>
   n >= 1_000_000 ? `${(n / 1e6).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
