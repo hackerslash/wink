@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/og.png" alt="Wink — bring your models, keep your data." width="800">
+</p>
+
 <h1>wink</h1>
 
 **Bring your models. Keep your data.**
