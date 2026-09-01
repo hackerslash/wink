@@ -45,13 +45,13 @@ export function Landing() {
   const hasProvider = providers.some((p) => p.enabled && p.models.length)
 
   const hero = (
-    <div className="px-2 py-8 animate-[rise_0.5s_var(--ease-out)_both]">
+    <div className="px-2 py-[clamp(0.375rem,3vh,2rem)] animate-[rise_0.5s_var(--ease-out)_both]">
       <h1 className="text-[length:var(--text-display)] leading-[1.04] font-semibold tracking-[var(--track-display)]">
         Bring your models.
         <br />
         <span className="text-muted-foreground">Keep your data.</span>
       </h1>
-      <p className="mt-4 max-w-[54ch] text-[17px] leading-[1.6] tracking-[-0.011em] text-muted-foreground">
+      <p className="mt-[clamp(0.75rem,1.8vh,1rem)] max-w-[64ch] text-[17px] leading-[1.6] tracking-[-0.011em] text-muted-foreground">
         A local-first, multi-model AI chat that runs in your browser.
         Conversations, memories and documents stay in this device's storage —
         you choose which model ever sees them.
@@ -60,30 +60,32 @@ export function Landing() {
   )
 
   return (
-    <div className="flex min-h-0 flex-1 items-center overflow-y-auto px-4 pt-[5.5rem] pb-[var(--composer-h,9rem)] md:px-10">
-      <div className="mx-auto w-full max-w-3xl">
+    <div className="flex min-h-0 flex-1 overflow-y-auto px-4 pt-[clamp(4rem,9vh,5.5rem)] pb-[var(--composer-h,9rem)] md:px-10">
+      <div className="mx-auto my-auto w-full max-w-3xl">
         {hero}
 
         {!hasProvider ? (
-          <div className="panel mt-2 max-w-[33rem] rounded-[18px] p-6 animate-[rise_0.5s_60ms_var(--ease-out)_both]">
-            <span className="mb-3.5 grid size-9 place-items-center rounded-[11px] border border-hairline bg-[var(--paper-3)] text-[var(--accent-solid)]">
-              <HugeiconsIcon
-                icon={KeyIcon}
-                className="size-4"
-                strokeWidth={2}
-              />
-            </span>
-            <h2 className="text-[16px] font-semibold tracking-[-0.016em]">
-              Connect your first model
-            </h2>
-            <p className="mt-1.5 max-w-[46ch] text-[15px] leading-[1.6] text-muted-foreground">
+          <div className="panel mt-1 max-w-[36rem] rounded-[18px] p-[clamp(1.15rem,2.6vh,1.5rem)] animate-[rise_0.5s_60ms_var(--ease-out)_both]">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-[11px] border border-hairline bg-[var(--paper-3)] text-[var(--accent-solid)]">
+                <HugeiconsIcon
+                  icon={KeyIcon}
+                  className="size-4"
+                  strokeWidth={2}
+                />
+              </span>
+              <h2 className="text-[16px] font-semibold tracking-[-0.016em]">
+                Connect your first model
+              </h2>
+            </div>
+            <p className="mt-3 max-w-[52ch] text-[15px] leading-[1.6] text-muted-foreground">
               Paste an API key for OpenAI, Anthropic or Gemini — or point Wink
               at Ollama and stay entirely offline.
             </p>
             <button
               type="button"
               onClick={() => store.getState().openSettings("providers")}
-              className="ink-fill press press-active mt-5 inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[14px] font-semibold shadow-[var(--shadow-1)] hover:opacity-90"
+              className="ink-fill press press-active mt-[clamp(0.85rem,2vh,1.25rem)] inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-[14px] font-semibold shadow-[var(--shadow-1)] hover:opacity-90"
             >
               <HugeiconsIcon
                 icon={RocketIcon}
@@ -92,7 +94,7 @@ export function Landing() {
               />
               Choose a provider
             </button>
-            <div className="mt-5 flex items-center gap-4 text-[13px] text-muted-foreground">
+            <div className="mt-[clamp(0.85rem,2vh,1.25rem)] flex items-center gap-4 text-[13px] text-muted-foreground">
               <span className="flex items-center gap-1">
                 <HugeiconsIcon
                   icon={CpuIcon}

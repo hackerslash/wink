@@ -33,19 +33,28 @@ export function AccentDot({
   )
 }
 
-/** The wordmark: ink text plus one accent square. Used in the sidebar and boot. */
+/** The wordmark: the W mark plus ink text. Used in the sidebar and boot. */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2", className)}>
-      <span
-        className="size-[13px] rounded-[4.5px]"
-        style={{
-          background: "var(--accent-solid)",
-          boxShadow: "inset 0 1px 0 oklch(100% 0 0 / 0.28), var(--shadow-1)",
-        }}
+      <svg
+        viewBox="0 0 32 32"
+        className="size-[17px] shrink-0 rounded-[5px] shadow-[var(--shadow-1)]"
         aria-hidden
-      />
-      <span className="text-[17px] font-semibold tracking-[-0.028em]">wink</span>
+      >
+        <rect width="32" height="32" fill="var(--accent-solid)" />
+        <path
+          d="M7 10.5 11.5 22 16 13.4 20.5 22 24.4 15.2"
+          fill="none"
+          stroke="var(--accent-on)"
+          strokeWidth="2.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="text-[17px] leading-none font-semibold tracking-[-0.028em]">
+        wink
+      </span>
     </span>
   )
 }

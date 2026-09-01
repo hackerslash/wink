@@ -101,7 +101,7 @@
   --text-body: 16px;
   --text-read: 17px;
   --text-title: 19px;
-  --text-display: clamp(2.25rem, 4.4vw, 3.25rem);
+  --text-display: clamp(2rem, min(4.4vw, 6vh), 3.25rem);
 
   /* SF tightens as it grows and opens up as it shrinks; the tracking pairs
    * with each size rather than being set once on the root. */
