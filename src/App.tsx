@@ -64,7 +64,7 @@ export function App() {
       )}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-30 md:static",
+          "fixed inset-y-0 left-0 z-30 bg-[var(--shell)] shadow-[var(--shadow-3)] md:static md:bg-transparent md:shadow-none",
           !sidebarOpen && "pointer-events-none"
         )}
       >
